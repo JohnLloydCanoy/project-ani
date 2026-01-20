@@ -3,3 +3,6 @@ pip freeze > requirements.txt
 
 View List
 pip list
+
+running and testing 
+streamlit run app.py
