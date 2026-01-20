@@ -1,0 +1,17 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# 1. Ignore the Virtual Environment (Crucial)
+venv/
+env/
+.venv/
+
+# 2. Ignore Python Cache files (Junk)
+__pycache__/
+*.pyc
+
+# 3. Ignore Secrets (SECURITY RISK)
+.env
+.streamlit/secrets.toml
+
+# 4. Ignore OS Junk
+.DS_Store
+Thumbs.db
