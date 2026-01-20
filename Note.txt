@@ -6,3 +6,27 @@ pip list
 
 running and testing 
 streamlit run app.py
+
+Activate Venv
+venv/Scripts/activate
+
+deactivates
+deactivate
+
+Creating Branch 
+git checkout -b (Branch Title)
+
+# 1. Stage the changes
+git add app.py
+
+# 2. Commit (Save history)
+git commit -m "feat: Add page configuration"
+
+# 3. Push the branch
+git push -u origin setting-title
+
+# 1. Switch back to main
+git checkout main
+
+# 2. Download the changes
+git pull origin main
