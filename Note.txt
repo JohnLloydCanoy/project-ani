@@ -2,3 +2,4 @@ Updating Requirement.txt File
 pip freeze > requirements.txt
 
 View List
+pip list
