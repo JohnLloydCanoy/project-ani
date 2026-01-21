@@ -5,7 +5,7 @@ View List
 pip list
 
 running and testing 
-streamlit run app.py
+venv/Scripts/activate
 
 Activate Venv
 venv/Scripts/activate
@@ -27,6 +27,9 @@ git push -u origin setting-title
 
 # 1. Switch back to main
 git checkout main
-
+ 
 # 2. Download the changes
 git pull origin main
+
+git fetch
+git checkout name-of-your-branch

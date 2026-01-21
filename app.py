@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 # Load environment variables from a .env file
 load_dotenv()
 
+# Set the page configuration
+
 
 st.set_page_config(
     page_title="Project A.N.I.",
