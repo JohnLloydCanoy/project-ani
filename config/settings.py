@@ -1,16 +1,22 @@
-from google import genai
-from config.settings import get_api_key, SYSTEM_PROMPT
+import os
+from dotenv import load_dotenv
 
-api_key = get_api_key()
-client = genai.Client(api_key=api_key)
+load_dotenv()
 
-def ask_gemini(user_message):
-    """Sends a message to Gemini 3.0 and gets the text response."""
-    try:
-        response = client.models.generate_content(
-            model='gemini-3.0-flash-preview', # or if the code is having an error, change to this gemini-3.0-pro-exp
-            contents=[SYSTEM_PROMPT, user_message]
-        )
-        return response.text
-    except Exception as e:
-        return f"Error connecting to AI: {e}"
+# 1. Define the System Prompt (The AI's Persona)
+SYSTEM_PROMPT = """
+You are Project A.N.I. (Agricultural Network Intelligence), an expert AI Agronomist 
+dedicated to helping farmers in the Philippines. 
+You provide clear, practical advice on crop diseases, soil health, and pest control.
+Always be encouraging, professional, and concise.
+"""
+
+# 2. Define the Key Fetcher
+def get_api_key():
+    """
+    Safely retrieves the API key from the .env file.
+    """
+    key = os.getenv("GEMINI_API_KEY")
+    if not key:
+        raise ValueError("❌ GEMINI_API_KEY not found in .env file!")
+    return key
