@@ -43,7 +43,7 @@ if user_input:
     
     # Save User Message to Memory
     add_user_message(user_input)
-
+    
     # Get AI Response
     with st.chat_message("assistant"):
         with st.spinner("Analyzing agricultural data..."):
@@ -55,5 +55,4 @@ if user_input:
             
     # Save AI Response to Memory
     add_ai_message(response)
-
 # --- THE CHAT LOGIC ENDS HERE ---
