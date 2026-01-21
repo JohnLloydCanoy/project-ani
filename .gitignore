@@ -15,3 +15,7 @@ __pycache__/
 # 4. Ignore OS Junk
 .DS_Store
 Thumbs.db
+
+# 5. Ignore Python Cache files (Junk)
+__pycache__/
+*.pyc
