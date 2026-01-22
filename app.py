@@ -38,6 +38,8 @@ for message in st.session_state.messages:
         
 
 user_input = st.chat_input("Type your question here...")
+pic_button()  # Call the modified pic_button function
+
 
 
 if user_input:

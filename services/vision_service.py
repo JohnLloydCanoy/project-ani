@@ -2,10 +2,12 @@ from PIL import Image
 import streamlit as st
 
 def pic_button():
-    st.button("Upload Image")
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded Image.', use_column_width=True)
-        st.write("")
-        st.write("Classifying...")
+    open_camera = st.button("📸 Open Camera")
+    if open_camera:
+        img_file_buffer = st.camera_input("Take a picture")
+        if img_file_buffer is not None:
+            # To read image file buffer with PIL:
+            image = Image.open(img_file_buffer)
+            st.image(image, caption='Captured Image.', use_column_width=True)
+            # Here you can add code to process the image as needed
+    return open_camera
