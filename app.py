@@ -7,6 +7,8 @@ from core.history_management import (
     add_ai_message, 
     get_chat_history
 )
+from services.vision_service import (open_camera,)  # Importing the modified vision_service
+from PIL import Image
 
 load_dotenv()
 st.set_page_config(
@@ -33,8 +35,13 @@ initialize_session_state()
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
+        
 
 user_input = st.chat_input("Type your question here...")
+open_camera()  # Call the modified open_camera function
+st.markdown("---")  
+
+
 
 if user_input:
     # Users Message
@@ -50,9 +57,9 @@ if user_input:
             # Get history -> Send to AI -> Get Answer
             history_context = get_chat_history()
             response = ask_gemini(history_context)
-            
             st.write(response)
             
     # Save AI Response to Memory
     add_ai_message(response)
 # --- THE CHAT LOGIC ENDS HERE ---
+

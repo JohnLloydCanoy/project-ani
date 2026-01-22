@@ -5,7 +5,7 @@ View List
 pip list
 
 running and testing 
-venv/Scripts/activate
+streamlit run app.py
 
 Activate Venv
 venv/Scripts/activate
