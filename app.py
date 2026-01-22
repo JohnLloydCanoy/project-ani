@@ -38,7 +38,8 @@ for message in st.session_state.messages:
         
 
 user_input = st.chat_input("Type your question here...")
-open_camera()  # Call the modified pic_button function
+open_camera()  # Call the modified open_camera function
+st.markdown("---")  
 
 
 
