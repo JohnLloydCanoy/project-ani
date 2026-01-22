@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import streamlit.components.v1 as components
 
+
 def pic_button():
     if "camera_active" not in st.session_state:
         st.session_state.camera_active = False
