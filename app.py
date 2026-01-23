@@ -8,6 +8,7 @@ from core.history_management import (
     get_chat_history
 )
 from services.vision_service import (open_camera,)  # Importing the modified vision_service
+from components.take_video import take_video
 from PIL import Image
 
 load_dotenv()
@@ -38,7 +39,8 @@ for message in st.session_state.messages:
         
 
 user_input = st.chat_input("Type your question here...")
-open_camera()  # Call the modified open_camera function
+open_camera()  # Call the picture camera function
+take_video()   # Call the video camera function
 st.markdown("---")  
 
 
