@@ -1,67 +1,53 @@
 import streamlit as st
-from dotenv import load_dotenv
+from streamlit_mic_recorder import mic_recorder
+from services.voice_service import transcribe_audio
 from core.agent import ask_gemini
 from core.history_management import (
-    initialize_session_state, 
-    add_user_message, 
-    add_ai_message, 
-    get_chat_history
-)
-from services.voice_service import transcribe_audio
-from streamlit_mic_recorder import mic_recorder
-from PIL import Image
-
-load_dotenv()
-st.set_page_config(
-    page_title="Project A.N.I.",
-    page_icon="🌱",
-    layout="wide"
+    initialize_session_state, add_user_message, add_ai_message, get_chat_history
 )
 
-# Sidebar 
+st.set_page_config(page_title="Project A.N.I.", page_icon="🌱", layout="wide")
+
+# Sidebar
 with st.sidebar:
     st.title("🌱 Project A.N.I.")
-    st.caption("Agricultural Network Intelligence")
-    st.markdown("---")
-    enable_voice = st.toggle("Enable Voice Mode (Beta)", value=False)
-    if enable_voice:
-        st.info("A.N.I. is listening... Speak your question.")
+    st.write("Your AI Agronomist")
+    if st.button("Clear Conversation"):
+        st.session_state.messages = []
+        st.rerun()
 
-st.title("Hi! Welcome to Project A.N.I. 👋")
-st.write("I am your AI Agronomist. Ask me anything about your crops!")
+st.title("Kamusta, Magsasaka! 👋")
+st.write("Ako si A.N.I. Ano ang maitutulong ko sa iyong farm?")
 
 initialize_session_state()
 
-# Display chat history
+# Display Chat
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
 
-# UI for Input
-col1, col2 = st.columns([0.9, 0.1])
-with col1:
-    user_input = st.chat_input("Type your question here...")
-
-with col2:
-    if enable_voice:
+# Input Section (Side-by-Side)
+input_container = st.container()
+with input_container:
+    col1, col2 = st.columns([0.85, 0.15])
+    with col1:
+        user_input = st.chat_input("Dito i-type ang iyong tanong...")
+    with col2:
         audio_data = mic_recorder(start_prompt="🎤", stop_prompt="🛑", just_once=True, key='recorder')
-    else:
-        audio_data = None
 
-# Process Voice Input
+# Process Voice
 if audio_data and audio_data['bytes']:
-    with st.spinner("Translating voice..."):
+    with st.spinner("Nakikinig si A.N.I..."):
         user_input = transcribe_audio(audio_data['bytes'])
 
-# Main Logic
+# Logic
 if user_input:
     with st.chat_message("user"):
         st.write(user_input)
     add_user_message(user_input)
     
     with st.chat_message("assistant"):
-        with st.spinner("Analyzing agricultural data..."):
-            history_context = get_chat_history()
-            response = ask_gemini(history_context)
+        with st.spinner("Sinusuri ang datos..."):
+            response = ask_gemini(get_chat_history())
             st.write(response)
     add_ai_message(response)

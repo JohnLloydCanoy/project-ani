@@ -4,9 +4,12 @@ def initialize_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-def get_chat_history():
+def get_chat_history(limit=10):
     formatted_history = []
-    for m in st.session_state.messages:
+    # Kukuha lang ng huling 10 messages para iwas sa Rate Limit
+    recent_messages = st.session_state.messages[-limit:]
+    
+    for m in recent_messages:
         formatted_history.append({
             "role": m["role"],
             "parts": [{"text": m["content"]}]
