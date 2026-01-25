@@ -37,11 +37,7 @@ def take_picture():
     
     if not camera_is_active:
         return None
-    
-    # Apply styles to hide Streamlit UI but keep our close button
     st.markdown(get_picture_camera_styles(), unsafe_allow_html=True)
-    
-    # Add a fixed close button using Streamlit that stays above the iframe
     close_button_html = """
     <style>
         .close-camera-btn {

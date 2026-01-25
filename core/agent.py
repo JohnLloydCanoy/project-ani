@@ -14,7 +14,7 @@ def ask_gemini(chat_history):
         full_context = [SYSTEM_PROMPT] + chat_history
         
         response = client.models.generate_content(
-            model='gemini-3-pro-preview',
+            model='gemini-2.5-flash-lite',
             contents=full_context
         )
         return response.text

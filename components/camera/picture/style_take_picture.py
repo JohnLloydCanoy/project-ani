@@ -117,7 +117,7 @@ def get_picture_camera_html():
                 object-fit: cover;
             }
             
-            #retakeBtn, #usePhotoBtn {
+            #retakeBtn, #analyzePhotoBtn {
                 position: absolute;
                 bottom: 80px;
                 z-index: 10001;
@@ -135,7 +135,7 @@ def get_picture_camera_html():
                 color: white;
             }
             
-            #usePhotoBtn {
+            #analyzePhotoBtn {
                 right: 10%;
                 background: #28a745;
                 color: white;
@@ -155,7 +155,7 @@ def get_picture_camera_html():
                     bottom: 60px;
                 }
                 
-                #retakeBtn, #usePhotoBtn {
+                #retakeBtn, #analyzePhotoBtn {
                     padding: 12px 22px;
                     font-size: 14px;
                     bottom: 60px;
@@ -173,7 +173,7 @@ def get_picture_camera_html():
         <div id="previewContainer">
             <img id="previewImage" />
             <button id="retakeBtn" onclick="retakePhoto()">Retake</button>
-            <button id="usePhotoBtn" onclick="usePhoto()">Use Photo</button>
+            <button id="analyzePhotoBtn" onclick="usePhoto()">Analyze</button>
         </div>
         
         <script>
@@ -261,11 +261,10 @@ def get_picture_camera_html():
                     stream.getTracks().forEach(track => track.stop());
                 }
                 
-                // Download the image so user can upload it
-                const a = document.createElement('a');
-                a.href = imageData;
-                a.download = 'plant_photo_' + Date.now() + '.jpg';
-                a.click();
+                // users will automatically analyze the photo
+                const url = new URL(window.location.href);
+                url.searchParams.set('photo_captured', 'true');
+                window.location.href = url.toString();
                 
                 // Redirect back to main page
                 setTimeout(() => {
