@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types
 from config.settings import get_api_key, SYSTEM_PROMPT
 
 
@@ -13,9 +14,11 @@ def ask_gemini(chat_history):
         full_context = [SYSTEM_PROMPT] + chat_history
         
         response = client.models.generate_content(
-            model='gemini-3-flash-preview', # or gemini-3-pro-preview
+            model='gemini-3-pro-preview',
             contents=full_context
         )
         return response.text
     except Exception as e:
         return f"⚠️ Connection Error: {e}"
+
+

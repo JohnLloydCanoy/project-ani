@@ -15,9 +15,16 @@ def open_picture_camera():
         st.session_state.camera_active = False
         st.query_params.clear()
         st.rerun()
+    
+    # Check if photo was captured
+    if query_params.get("photo_captured") == "true":
+        st.session_state.camera_active = False
+        st.session_state.photo_pending = True
+        st.query_params.clear()
+        st.rerun()
 
     if not st.session_state.camera_active:
-        if st.button("📸 Open Camera"):
+        if st.button("📸 Take Photo"):
             st.session_state.camera_active = True
             st.rerun()
         return False

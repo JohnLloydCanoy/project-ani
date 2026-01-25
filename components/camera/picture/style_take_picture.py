@@ -261,14 +261,16 @@ def get_picture_camera_html():
                     stream.getTracks().forEach(track => track.stop());
                 }
                 
-                // Download the image
+                // Download the image so user can upload it
                 const a = document.createElement('a');
                 a.href = imageData;
-                a.download = 'photo_' + Date.now() + '.jpg';
+                a.download = 'plant_photo_' + Date.now() + '.jpg';
                 a.click();
                 
-                // Show message to user to click the X button to close
-                alert('Photo saved! Click the X button to return to the main page.');
+                // Redirect back to main page
+                setTimeout(() => {
+                    window.top.location.href = '/?close_camera=true';
+                }, 500);
             }
             
             // Initialize with back camera
