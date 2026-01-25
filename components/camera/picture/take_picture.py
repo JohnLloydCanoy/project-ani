@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
 import streamlit.components.v1 as components
-from style_take_picture import get_picture_camera_html, get_picture_camera_styles
+from components.camera.picture.style_take_picture import get_picture_camera_html, get_picture_camera_styles
 
 
 def open_picture_camera():
@@ -31,10 +31,41 @@ def take_picture():
     if not camera_is_active:
         return None
     
-    # Apply styles to hide Streamlit UI
+    # Apply styles to hide Streamlit UI but keep our close button
     st.markdown(get_picture_camera_styles(), unsafe_allow_html=True)
     
-    # Render the camera component - use a very large height
+    # Add a fixed close button using Streamlit that stays above the iframe
+    close_button_html = """
+    <style>
+        .close-camera-btn {
+            position: fixed !important;
+            top: 20px !important;
+            left: 15px !important;
+            z-index: 9999999 !important;
+            background: #dc3545 !important;
+            color: white !important;
+            border: 3px solid white !important;
+            border-radius: 50% !important;
+            width: 50px !important;
+            height: 50px !important;
+            font-size: 26px !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.7) !important;
+            text-decoration: none !important;
+        }
+        .close-camera-btn:hover {
+            background: #c82333 !important;
+        }
+    </style>
+    <a class="close-camera-btn" href="/?close_camera=true" target="_self">✕</a>
+    """
+    st.markdown(close_button_html, unsafe_allow_html=True)
+    
+    # Render the camera component
     components.html(get_picture_camera_html(), height=2000, scrolling=False)
     
     return None

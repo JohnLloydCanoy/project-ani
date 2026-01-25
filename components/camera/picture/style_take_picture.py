@@ -58,7 +58,6 @@ def get_picture_camera_html():
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 4px 20px rgba(0,0,0,0.7);
-                text-decoration: none;
             }
             
             #switchCameraBtn {
@@ -167,7 +166,6 @@ def get_picture_camera_html():
         <div class="camera-container">
             <video id="videoElement" autoplay playsinline></video>
             <canvas id="canvas"></canvas>
-            <button id="closeBtn" onclick="closeCamera()">✕</button>
             <button id="switchCameraBtn" onclick="switchCamera()">🔄</button>
             <button id="captureBtn" onclick="capturePhoto()">Take Photo</button>
         </div>
@@ -187,8 +185,8 @@ def get_picture_camera_html():
                 if (stream) {
                     stream.getTracks().forEach(track => track.stop());
                 }
-                // Navigate parent window to close camera
-                window.top.location.href = window.top.location.pathname + '?close_camera=true';
+                // Navigate to close - this forces a full page reload with the query param
+                window.top.location.href = '/?close_camera=true';
             }
             
             async function initCamera(facingMode) {
@@ -263,20 +261,14 @@ def get_picture_camera_html():
                     stream.getTracks().forEach(track => track.stop());
                 }
                 
-                // Send to Streamlit
-                window.parent.postMessage({
-                    type: 'photo_captured',
-                    data: imageData
-                }, '*');
-                
-                // Also download the image
+                // Download the image
                 const a = document.createElement('a');
                 a.href = imageData;
                 a.download = 'photo_' + Date.now() + '.jpg';
                 a.click();
                 
-                // Close camera - use parent window with full path
-                window.top.location.href = window.top.location.pathname + '?close_camera=true';
+                // Show message to user to click the X button to close
+                alert('Photo saved! Click the X button to return to the main page.');
             }
             
             // Initialize with back camera
