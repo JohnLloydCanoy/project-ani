@@ -8,7 +8,7 @@ from core.history_management import (
     get_chat_history
 )
 from services.vision_service import (open_camera,)  # Importing the modified vision_service
-from components.take_video import take_video
+from components.video.take_video import take_video
 from PIL import Image
 
 load_dotenv()
