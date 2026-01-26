@@ -1,5 +1,4 @@
 import streamlit as st
-from PIL import Image
 import streamlit.components.v1 as components
 from components.camera.picture.style_take_picture import get_picture_camera_html, get_picture_camera_styles
 

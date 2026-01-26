@@ -37,12 +37,13 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
         
+col1, col2, col3 = st.columns([1, 2, 1])
+
+with col2:
+    st.button("📸 Take Picture", on_click=open_camera, use_container_width=True)# Call the picture camera function
+    st.button("🎥 Record Video", on_click=take_video, use_container_width=True)# Call the video camera function
 
 user_input = st.chat_input("Type your question here...")
-open_camera()  # Call the picture camera function
-take_video()   # Call the video camera function
-st.markdown("---")  
-
 
 
 if user_input:
