@@ -2,7 +2,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from core.agent import ask_gemini
 from core.history_management import (initialize_session_state, add_user_message, add_ai_message, get_chat_history)
-from services.vision_service import (open_camera,)  # Importing the modified vision_service
+from services.vision_service import (process)  
 from PIL import Image
 from components.camera.picture.take_picture import take_picture
 from components.camera.video.take_video import take_video
@@ -39,37 +39,8 @@ with col2:
     if st.button("📸 Take Picture", use_container_width=True):
         st.session_state.camera_active = True
         st.rerun()
-    if st.button("🎥 Record Video", use_container_width=True):
-        st.session_state.video_camera_active = True
-        st.rerun()
 
 # Render camera if active
 if st.session_state.get("camera_active", False):
     take_picture()
-
-if st.session_state.get("video_camera_active", False):
-    take_video()
-
-user_input = st.chat_input("Type your question here...")
-
-
-if user_input:
-    # Users Message
-    with st.chat_message("user"):
-        st.write(user_input)
-    
-    # Save User Message to Memory
-    add_user_message(user_input)
-    
-    # Get AI Response
-    with st.chat_message("assistant"):
-        with st.spinner("Analyzing agricultural data..."):
-            # Get history -> Send to AI -> Get Answer
-            history_context = get_chat_history()
-            response = ask_gemini(history_context)
-            st.write(response)
-            
-    # Save AI Response to Memory
-    add_ai_message(response)
-# --- THE CHAT LOGIC ENDS HERE ---
 

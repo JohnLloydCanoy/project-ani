@@ -7,5 +7,7 @@ from components.camera.video.take_video import take_video
 from PIL import Image
 
 
-def open_camera():
+def process():
+    # Function to process image or video input And analyze it  
     take_picture()
+    
