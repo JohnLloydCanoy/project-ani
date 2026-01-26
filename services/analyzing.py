@@ -1,2 +1,5 @@
+# The analyzing module is responsible for data analysis functionalities.
+
 def analyzing():
-    pass
+    picture = "Analyzing data..."
+    return picture
