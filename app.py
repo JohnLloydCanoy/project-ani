@@ -1,15 +1,11 @@
 import streamlit as st
 from dotenv import load_dotenv
 from core.agent import ask_gemini
-from core.history_management import (
-    initialize_session_state, 
-    add_user_message, 
-    add_ai_message, 
-    get_chat_history
-)
+from core.history_management import (initialize_session_state, add_user_message, add_ai_message, get_chat_history)
 from services.vision_service import (open_camera,)  # Importing the modified vision_service
-from components.camera.video.take_video import take_video
 from PIL import Image
+from components.camera.picture.take_picture import take_picture
+from components.camera.video.take_video import take_video
 
 load_dotenv()
 st.set_page_config(
@@ -40,8 +36,19 @@ for message in st.session_state.messages:
 col1, col2, col3 = st.columns([1, 2, 1])
 
 with col2:
-    st.button("📸 Take Picture", on_click=open_camera, use_container_width=True)# Call the picture camera function
-    st.button("🎥 Record Video", on_click=take_video, use_container_width=True)# Call the video camera function
+    if st.button("📸 Take Picture", use_container_width=True):
+        st.session_state.camera_active = True
+        st.rerun()
+    if st.button("🎥 Record Video", use_container_width=True):
+        st.session_state.video_camera_active = True
+        st.rerun()
+
+# Render camera if active
+if st.session_state.get("camera_active", False):
+    take_picture()
+
+if st.session_state.get("video_camera_active", False):
+    take_video()
 
 user_input = st.chat_input("Type your question here...")
 
