@@ -46,3 +46,4 @@ with col2:
 if st.session_state.get("camera_active", False):
     take_picture()
 
+render_registry_table()
