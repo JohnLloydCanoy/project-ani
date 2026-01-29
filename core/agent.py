@@ -1,31 +1,39 @@
 import google.generativeai as genai
-from config.settings import get_api_key, SYSTEM_PROMPT
-
-api_key = get_api_key()
-genai.configure(api_key=api_key)
-
-api_key = get_api_key()
-genai.configure(api_key=api_key)
+import streamlit as st
+from PIL import Image
 
 
-model = genai.GenerativeModel(
-    model_name="gemini-3-flash-preview",
-    system_instruction=SYSTEM_PROMPT
-)
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-def ask_gemini(chat_history):
+model = genai.GenerativeModel("gemini-3-flash-preview")
+
+def ask_gemini(image_file):
     """
-    Sends the message to Gemini.
-    Note: chat_history should be a list of strings or dicts depending on your implementation.
+    Accepts an uploaded file object, converts it to an image,
+    and asks Gemini to analyze it for plant health.
     """
     try:
-        # If chat_history is just text, we can send it directly.
-        # If it's a list of previous messages, we might need to format it.
-        # For a simple Q&A, we just send the latest prompt or history string.
-        response = model.generate_content(chat_history)
+        if not image_file:
+            return "Error: No image provided."
+        image_file.seek(0)
+        image = Image.open(image_file)
+        prompt = """
+        You are an expert Agronomist (Project A.N.I.). 
+        Analyze this plant image.
+        
+        Return ONLY a JSON object with this exact structure (no markdown):
+        {
+            "plant_name": "Common Name (Scientific Name)",
+            "health_status": "Healthy" or "Name of Disease",
+            "action_plan": "One short sentence on what to do.",
+            "confidence": 0.95,
+            "category": "Crop" or "Weed" or "Ornamental"
+        }
+        """
+        response = model.generate_content([prompt, image])
+        
         return response.text
         
     except Exception as e:
-        return f"⚠️ Connection Error: {e}"
-
-
+        return f"Error connecting to Gemini: {e}"
