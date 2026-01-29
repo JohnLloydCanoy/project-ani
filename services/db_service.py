@@ -1,5 +1,5 @@
 import streamlit as st
-import uuid  # <--- NEW: Needed to generate unique filenames
+import uuid  
 from supabase import create_client, Client
 
 @st.cache_resource

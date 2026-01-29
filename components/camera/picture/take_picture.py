@@ -5,10 +5,9 @@ from core.agent import ask_gemini
 from services.db_service import upload_image_to_supabase, save_plant_to_db 
 from components.registry_table import render_registry_table
 
-# 1. Page Config (Must be first)
 st.set_page_config(page_title="Project A.N.I.", page_icon="🌱", layout="wide")
 
-# 2. THE CSS HACK (Makes the camera full width & app-like)
+
 st.markdown("""
 <style>
     /* 1. Remove top padding to maximize space */
@@ -43,16 +42,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER ---
+
 st.title("🌱 Project A.N.I.")
 st.caption("Agricultural Network Intelligence")
 
-# --- CAMERA SECTION ---
-# Use the native camera, but now it looks BIG thanks to the CSS above
+
 img_file = st.camera_input("📸 Tap to Scan")
 
 if img_file:
-    # --- LOGIC PIPELINE (Same as before) ---
     with st.status("🚀 Processing Scan...", expanded=True) as status:
         
         st.write("☁️ Uploading...")
@@ -77,7 +74,6 @@ if img_file:
                 
                 status.update(label="✅ Done!", state="complete", expanded=False)
                 
-                # Result Card
                 st.success(f"Identified: {analysis_data.get('plant_name')}")
                 if analysis_data.get("health_status") != "Healthy":
                     st.warning(f"Diagnosis: {analysis_data.get('health_status')}")
@@ -91,5 +87,4 @@ if img_file:
             except Exception as e:
                 st.error(f"Error: {e}")
 
-# --- REGISTRY TABLE ---
 render_registry_table()
