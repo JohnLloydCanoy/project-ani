@@ -46,7 +46,7 @@ st.markdown("""
 st.title("🌱 Project A.N.I.")
 st.caption("Agricultural Network Intelligence")
 
-
+# Next Update 
 img_file = st.camera_input("📸 Tap to Scan")
 
 if img_file:
