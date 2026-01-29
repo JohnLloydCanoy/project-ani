@@ -5,7 +5,6 @@ from core.history_management import (initialize_session_state, add_user_message,
 from services.vision_service import (process)  
 from PIL import Image
 from components.camera.picture.take_picture import take_picture
-from components.camera.video.take_video import take_video
 from components.registry_table import render_registry_table
 
 

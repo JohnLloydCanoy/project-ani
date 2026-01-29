@@ -19,7 +19,6 @@ def fetch_all_plants():
     if not supabase: return []
     
     try:
-        # Order by newest first
         response = supabase.table("plants_registry").select("*").order("created_at", desc=True).execute()
         return response.data
     except Exception as e:
