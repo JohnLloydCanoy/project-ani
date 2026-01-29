@@ -1,27 +1,33 @@
 import streamlit as st
 import google.generativeai as genai
 
-st.title("🔌 Gemini Connection Tester")
+st.title("🔌 Gemini Connection & Model Tester")
+
 
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
-    st.success("✅ API Key found in secrets.toml")
+    genai.configure(api_key=api_key)
+    st.success("✅ Successfully connected with API Key.")
 except Exception as e:
-    st.error(f"❌ Key Missing: {e}")
+    st.error(f"❌ Key Error: {e}")
     st.stop()
 
-try:
-    genai.configure(api_key=api_key)
-    
+st.subheader("🔍 Listing Available Models")
+st.write("Fetching list from Google...")
 
-    model = genai.GenerativeModel('gemini-3-flash-preview')
-    response = model.generate_content("Say 'Hello Farmer' if you can hear me.")
-    
-    if response.text:
-        st.success(f"✅ CONNECTION SUCCESSFUL!")
-        st.info(f"Gemini Replied: {response.text}")
+try:
+
+    models = list(genai.list_models())
+    chat_models = [m for m in models if 'generateContent' in m.supported_generation_methods]
+
+    if chat_models:
+        st.markdown("### 🤖 Chat & Vision Models:")
+        for m in chat_models:
+            st.code(f"{m.name}")
+            
+        st.caption(f"Total models found: {len(models)}")
     else:
-        st.warning("⚠️ Connected, but no text returned.")
-        
+        st.warning("Connected, but no models found with 'generateContent' capability.")
+
 except Exception as e:
-    st.error(f"❌ Connection Failed: {e}")
+    st.error(f"❌ Error fetching models: {e}")
