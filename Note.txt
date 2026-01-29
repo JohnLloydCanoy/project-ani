@@ -33,3 +33,6 @@ git pull origin main
 
 git fetch
 git checkout name-of-your-branch
+
+install SUPABASE lib
+pip install supabase

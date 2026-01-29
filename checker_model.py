@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 try:
-    client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     print("✅ Successfully connected with API Key.\n")
     print("🔍 Listing available models for you:")
     print("-" * 40)

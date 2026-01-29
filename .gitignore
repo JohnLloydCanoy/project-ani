@@ -19,3 +19,13 @@ Thumbs.db
 # 5. Ignore Python Cache files (Junk)
 __pycache__/
 *.pyc
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Streamlit credentials (internal user data)
+.streamlit/credentials.toml
+
+*.jpg
+*.jpeg
+*.png
