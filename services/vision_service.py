@@ -10,4 +10,3 @@ from PIL import Image
 def process():
     # Function to process image or video input And analyze it  
     take_picture()
-    
