@@ -1,10 +1,15 @@
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+import streamlit as st
 
 def get_api_key():
-    return os.getenv("GEMINI_API_KEY")
+    """
+    Safely retrieves the Gemini API key from .streamlit/secrets.toml.
+    """
+    try:
+        # Imbes os.getenv, gamiton nato ang st.secrets
+        return st.secrets["GEMINI_API_KEY"]
+    except KeyError:
+        st.error("❌ GEMINI_API_KEY wala makit-i sa secrets.toml!")
+        st.stop()
 
 SYSTEM_PROMPT = """
 You are A.N.I. (Agricultural Network Intelligence), an expert agronomist for Filipino farmers. 
