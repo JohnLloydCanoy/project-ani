@@ -1,9 +1,5 @@
-import os
-from dotenv import load_dotenv
+import streamlit as st
 
-load_dotenv()
-
-# 1. Define the System Prompt (The AI's Persona)
 SYSTEM_PROMPT = """
 You are ANI, an expert AI Agronomist 
 dedicated to helping farmers in the Philippines. 
@@ -11,12 +7,15 @@ You provide clear, practical advice on crop diseases, soil health, and pest cont
 Always be encouraging, professional, and concise.
 """
 
-# 2. Define the Key Fetcher
 def get_api_key():
     """
-    Safely retrieves the API key from the .env file.
+    Safely retrieves the API key from .streamlit/secrets.toml
     """
-    key = os.getenv("GEMINI_API_KEY")
-    if not key:
-        raise ValueError("❌ GEMINI_API_KEY not found in .env file!")
-    return key
+    try:
+        return st.secrets["GOOGLE_API_KEY"]
+    except KeyError:
+        st.error("❌ GOOGLE_API_KEY not found in secrets.toml!")
+        st.stop()
+    except FileNotFoundError:
+        st.error("❌ .streamlit/secrets.toml file is missing!")
+        st.stop()
