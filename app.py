@@ -43,4 +43,3 @@ with col2:
 # Render camera if active
 if st.session_state.get("camera_active", False):
     take_picture()
-
