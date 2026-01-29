@@ -6,6 +6,8 @@ from services.vision_service import (process)
 from PIL import Image
 from components.camera.picture.take_picture import take_picture
 from components.camera.video.take_video import take_video
+from components.registry_table import render_registry_table
+
 
 load_dotenv()
 st.set_page_config(
@@ -43,3 +45,4 @@ with col2:
 # Render camera if active
 if st.session_state.get("camera_active", False):
     take_picture()
+
