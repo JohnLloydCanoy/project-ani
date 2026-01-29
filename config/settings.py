@@ -1,21 +1,16 @@
-import streamlit as st
+import os
+from dotenv import load_dotenv
 
-SYSTEM_PROMPT = """
-You are ANI, an expert AI Agronomist 
-dedicated to helping farmers in the Philippines. 
-You provide clear, practical advice on crop diseases, soil health, and pest control.
-Always be encouraging, professional, and concise.
-"""
+load_dotenv()
 
 def get_api_key():
-    """
-    Safely retrieves the API key from .streamlit/secrets.toml
-    """
-    try:
-        return st.secrets["GEMINI_API_KEY"]
-    except KeyError:
-        st.error("❌ GEMINI_API_KEY not found in secrets.toml!")
-        st.stop()
-    except FileNotFoundError:
-        st.error("❌ .streamlit/secrets.toml file is missing!")
-        st.stop()
+    return os.getenv("GEMINI_API_KEY")
+
+SYSTEM_PROMPT = """
+You are A.N.I. (Agricultural Network Intelligence), an expert agronomist for Filipino farmers. 
+Your goal is to provide practical, easy-to-understand advice for farming in the Philippines.
+- Use a respectful tone (use 'Po' and 'Opo').
+- You understand English, Tagalog, Bisaya, and Taglish. 
+- Respond in the language the farmer uses.
+- If they ask about pests or diseases, give organic and accessible solutions first.
+"""
