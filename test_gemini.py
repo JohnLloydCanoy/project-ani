@@ -4,7 +4,7 @@ import google.generativeai as genai
 st.title("🔌 Gemini Connection Tester")
 
 try:
-    api_key = st.secrets["GOOGLE_API_KEY"]
+    api_key = st.secrets["GEMINI_API_KEY"]
     st.success("✅ API Key found in secrets.toml")
 except Exception as e:
     st.error(f"❌ Key Missing: {e}")
@@ -14,7 +14,7 @@ try:
     genai.configure(api_key=api_key)
     
 
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-3-flash-preview')
     response = model.generate_content("Say 'Hello Farmer' if you can hear me.")
     
     if response.text:

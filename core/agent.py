@@ -7,10 +7,9 @@ genai.configure(api_key=api_key)
 api_key = get_api_key()
 genai.configure(api_key=api_key)
 
-# 2. Initialize the Model
-# We use 'gemini-1.5-flash' because it is fast and cheap for hackathons
+
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-3-flash-preview",
     system_instruction=SYSTEM_PROMPT
 )
 
