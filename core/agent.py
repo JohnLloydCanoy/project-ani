@@ -9,7 +9,7 @@ if api_key:
     genai.configure(api_key=api_key)
 
 # Gigamit ang Gemini 3 Flash para sa Hackathon 3.0!
-model = genai.GenerativeModel("gemini-3-flash-preview")
+model = genai.GenerativeModel("gemini-3-pro-preview")
 
 def ask_gemini(input_data):
     """

@@ -47,15 +47,6 @@ if "pending_scan_insights" not in st.session_state:
     st.session_state.pending_scan_insights = None
 
 
-
-# --- APP HEADER ---
-st.markdown("""
-<div style='text-align: center; padding: 5px 0 15px 0;'>
-    <h1 style='font-size: 32px; margin: 0;'>🌱 A.N.I.</h1>
-    <p style='font-size: 14px; color: #666; margin: 3px 0 0 0;'>Katulong Mo sa Bukid</p>
-</div>
-""", unsafe_allow_html=True)
-
 # --- NAVIGATION BUTTONS (Big and obvious!) ---
 col1, col2, col3 = st.columns(3)
 
@@ -267,7 +258,6 @@ elif st.session_state.current_page == "scanner":
             🤖 A.N.I. is clicking the camera...
         </p>
         """, height=30)
-
     if img_file:
         current_file_id = f"{img_file.name}-{img_file.size}"
         if st.session_state.last_processed_file_id != current_file_id:

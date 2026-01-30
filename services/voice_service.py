@@ -171,7 +171,7 @@ def get_voice_and_text(audio_bytes, history):
 
         # 2. Get AI response from Gemini 3!
         response = client.models.generate_content(
-            model='gemini-3-flash-preview',
+            model='gemini-3-pro-preview',
             contents=[
                 f"{SYSTEM_PROMPT}\n\nKAHIMTANG KARON: {current_context}", 
                 *history, 
@@ -228,7 +228,7 @@ MAHALAGA: Sumagot sa PAREHONG WIKA ng farmer. Kung siya ay nagsasalita ng Bisaya
 
         # 3. Get AI response from Gemini 3 (transcribe + respond)
         response = client.models.generate_content(
-            model='gemini-3-flash-preview',
+            model='gemini-3-pro-preview',
             contents=[
                 enhanced_prompt,
                 *history, 
@@ -311,7 +311,7 @@ def generate_scan_insights(analysis_data, language="tagalog"):
         
         # Get AI response
         response = client.models.generate_content(
-            model='gemini-3-flash-preview',
+            model='gemini-3-pro-preview',
             contents=[prompt]
         )
         
