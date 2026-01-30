@@ -5,7 +5,6 @@ import time
 from core.agent import ask_gemini 
 from services.db_service import upload_image_to_supabase, save_plant_to_db, fetch_all_plants
 from components.registry_table import render_registry_table
-
 # Imports para sa imong Voice & Chat Service
 from services.voice_service import get_voice_and_text, process_voice_command, generate_natural_voice, generate_scan_insights, detect_language
 from core.history_management import (
@@ -67,7 +66,6 @@ with col3:
                 type="primary" if st.session_state.current_page == "history" else "secondary"):
         st.session_state.current_page = "history"
         st.rerun()
-
 st.divider()
 
 # ============================================
