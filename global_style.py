@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 # --- MOBILE-FRIENDLY CSS ---
 st.markdown("""
 <style>
@@ -132,10 +133,3 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- APP HEADER ---
-st.markdown("""
-<div style='text-align: center; padding: 5px 0 15px 0;'>
-    <h1 style='font-size: 32px; margin: 0;'>🌱 A.N.I.</h1>
-    <p style='font-size: 14px; color: #666; margin: 3px 0 0 0;'>Katulong Mo sa Bukid</p>
-</div>
-""", unsafe_allow_html=True)
