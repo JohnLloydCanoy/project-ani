@@ -40,5 +40,8 @@ pip install supabase
 checking if what branch exist in your system
 git branch
 
+fething new branch
+git fetch
+
 proceed to the branch the you want to go
 git checkout name-of-the-branch
