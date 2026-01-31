@@ -1,13 +1,12 @@
 import streamlit as st
 import json
 import time
-
 from core.agent import ask_gemini 
 from services.db_service import upload_image_to_supabase, save_plant_to_db 
 from components.registry_table import render_registry_table
+from config.app_config import app_config
 
-
-st.set_page_config(page_title="Project A.N.I.", page_icon="🌱", layout="wide")
+app_config()
 
 st.markdown("""
 <style>
