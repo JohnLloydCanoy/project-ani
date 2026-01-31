@@ -12,9 +12,11 @@ from core.history_management import (
 )
 from streamlit_mic_recorder import mic_recorder
 import global_style
-import core.session_manager as session_manager
+from config.app_config import app_config
+from core import session_manager
 
-
+app_config()
+initialize_session_state()
 
 # --- APP HEADER ---
 st.markdown("""
