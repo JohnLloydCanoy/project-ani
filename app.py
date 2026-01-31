@@ -1,4 +1,5 @@
 import streamlit as st
+import uuid
 from pages.home import dashboard_view
 from config.app_config import app_config
 from streamlit_float import *

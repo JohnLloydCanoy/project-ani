@@ -1,4 +1,5 @@
 import streamlit as st
+import uuid
 # Here we define the app_config function to set the Streamlit page configuration
 
 def app_config():
@@ -17,3 +18,10 @@ def app_config():
     })
     # Run the navigation
     pg.run()
+    
+    if "user_id" not in st.session_state:
+        generated_id = str(uuid.uuid4())[:8]
+        st.session_state.user_id = generated_id
+    with st.sidebar:
+        st.markdown(f"**🔑 Device ID:** `{st.session_state.user_id}`")
+        st.caption("Data is linked to this session ID.")
