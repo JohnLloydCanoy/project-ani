@@ -9,13 +9,14 @@ from core.history_management import (initialize_session_state, add_user_message,
 import global_style
 from config.app_config import app_config
 from core import session_manager
-from components.navigation import render_app_header
+from pages.dashboard import dashboard_view
 from core.voice_handler import handle_global_voice
 from pages.voice_page import render_voice_page
 from components.floating_mic import render_floating_mic
 
+
 app_config()
 initialize_session_state()
-render_app_header()
+dashboard_view()
 render_voice_page()
 render_floating_mic()

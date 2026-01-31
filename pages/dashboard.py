@@ -1,4 +1,6 @@
 import streamlit as st 
+from components.navigation import render_app_header
 
 def dashboard_view():
-    return "Welcome to the Dashboard!"
+    render_app_header()
+    

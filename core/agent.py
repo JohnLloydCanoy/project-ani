@@ -27,7 +27,6 @@ def ask_gemini(input_data):
         if input_data:
             input_data.seek(0)
             image = Image.open(input_data)
-            
             prompt = """
             You are an expert Agronomist (Project A.N.I.). 
             Analyze this plant image.
