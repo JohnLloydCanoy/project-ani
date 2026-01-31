@@ -1,4 +1,6 @@
 import streamlit as st
 
 def dashboard_view():
-    st.title("Dashboard")
+    # APP HEADER
+    st.title("🌱 Project A.N.I.")
+    st.caption("Katulong Mo sa Bukid")

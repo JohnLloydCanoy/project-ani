@@ -2,11 +2,13 @@ import streamlit as st
 import json
 import time
 from core.agent import ask_gemini 
+from pages.dashboard import dashboard_view
 from services.db_service import upload_image_to_supabase, save_plant_to_db 
 from components.registry_table import render_registry_table
 from config.app_config import app_config
 
 app_config()
+dashboard_view()
 
 st.markdown("""
 <style>
@@ -34,9 +36,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-
-st.title("🌱 Project A.N.I.")
 
 if "last_processed_file_id" not in st.session_state:
     st.session_state.last_processed_file_id = None
