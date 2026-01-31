@@ -13,13 +13,3 @@ def dashboard_view():
     </div>
     """, unsafe_allow_html=True)
     st.write("---")
-    # Create 4 equal columns
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.button("Home", on_click=lambda: st.session_state.update(page="dashboard"), use_container_width=True)
-    with c2:
-        st.button("Talk to ANI", on_click=lambda: st.session_state.update(page="chat"), use_container_width=True)
-    with c3:
-        st.button("Go to Scan", on_click=lambda: st.session_state.update(page="scan"), use_container_width=True)
-    with c4:
-        st.button("Registry", on_click=lambda: st.session_state.update(page="registry"), use_container_width=True)

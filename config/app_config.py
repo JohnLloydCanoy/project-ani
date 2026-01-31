@@ -9,10 +9,11 @@ def app_config():
     home_page = st.Page("pages/home.py", title="🏠 Home Dashboard")
     chat_page = st.Page("pages/talk_to_ani.py", title="🎙️ Talk to ANI")
     scan_page = st.Page("pages/scan.py", title="📸 Scan Plant")
+    view_twin = st.Page("pages/view_digital_twin.py", title="🌿 Digital Twin")
     registry_page = st.Page("pages/registry.py", title="📋 Registry")
     pg = st.navigation({
     "Main": [home_page, chat_page],
-    "Tools": [scan_page, registry_page]
+    "Tools": [scan_page, view_twin, registry_page]
     })
     # Run the navigation
     pg.run()
