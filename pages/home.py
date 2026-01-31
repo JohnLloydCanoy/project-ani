@@ -10,8 +10,7 @@ def dashboard_view():
     </div>
     """, unsafe_allow_html=True)
     st.write("---")
-    
-    st.write("Welcome to Project A.N.I.! This platform is designed to assist farmers in the Philippines with expert agronomic advice. Navigate through the tools using the sidebar to scan plants, talk to ANI, and manage your digital twin registry.")
+    st.info("Welcome to Project A.N.I.! This platform is designed to assist farmers in the Philippines with expert agronomic advice. Navigate through the tools using the sidebar to scan plants, talk to ANI, and manage your digital twin registry.")
     st.write("---")
     
     st.markdown("""
@@ -50,3 +49,6 @@ def dashboard_view():
     button_container.float(
         "bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 9999;"
     )
+
+# Call the function to render the page
+dashboard_view()
