@@ -3,6 +3,7 @@
 # ============================================
 from time import time
 import streamlit as st
+from streamlit_mic_recorder import mic_recorder
 from core.history_management import add_ai_message, add_user_message
 from core.voice_handler import handle_global_voice
 
