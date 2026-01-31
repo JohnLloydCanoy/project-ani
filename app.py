@@ -2,13 +2,16 @@ import streamlit as st
 import json
 import time
 from core.agent import ask_gemini 
-from pages.dashboard import dashboard_view
+from pages.home import dashboard_view
 from services.db_service import upload_image_to_supabase, save_plant_to_db 
 from components.registry_table import render_registry_table
 from config.app_config import app_config
 
 app_config()
 dashboard_view()
+
+# Group them if you want (Optional)
+
 
 st.markdown("""
 <style>
