@@ -1,11 +1,11 @@
 import streamlit as st
 import uuid
-from pages.home import dashboard_view
 from config.app_config import app_config
 from streamlit_float import *
 
 app_config()
 float_init()
+
 button_container = st.container()
 with button_container:
     if st.button("TALK TO ANI 🎙️", type="primary", use_container_width=True):
