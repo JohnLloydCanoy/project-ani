@@ -15,5 +15,5 @@ def registry_view():
     st.info("This section allows you to view and manage your plant records. You can see the details of each plant you've scanned and saved in your registry.")
     st.write("---")
     render_registry_table()
-    
+
 registry_view()
