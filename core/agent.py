@@ -1,11 +1,9 @@
 import google.generativeai as genai
 import streamlit as st
 from PIL import Image
-
-
+# 
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
 model = genai.GenerativeModel("gemini-3-flash-preview")
 
 def ask_gemini(image_file):
@@ -31,6 +29,7 @@ def ask_gemini(image_file):
             "category": "Crop" or "Weed" or "Ornamental"
         }
         """
+        
         response = model.generate_content([prompt, image])
         
         return response.text
