@@ -29,7 +29,7 @@ def ask_gemini(image_file):
             "category": "Crop" or "Weed" or "Ornamental"
         }
         """
-        
+        #Ill be Expecting a new promt for Chat box
         response = model.generate_content([prompt, image])
         
         return response.text
