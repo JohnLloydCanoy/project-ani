@@ -15,6 +15,7 @@ def dashboard_view():
     st.write("---")
     st.info("Welcome to Project A.N.I.! This platform is designed to assist farmers in the Philippines with expert agronomic advice.")
     st.write("---")
+    
     st.markdown("""
         <style>
             div.stButton > button {
@@ -29,20 +30,13 @@ def dashboard_view():
     
     if "camera_open" not in st.session_state:
         st.session_state.camera_open = False
-        
-    # THE BUTTON
     if st.button("SCAN NOW! 📸", type="primary", use_container_width=True):
         st.session_state.camera_open = True
         st.rerun()
         
     if st.session_state.camera_open:
-        # 2. CREATE THE TARGET ANCHOR
         st.markdown('<div id="camera-section"></div>', unsafe_allow_html=True)
-        
         take_picture_view()
-        
-        # 3. USE COMPONENTS.HTML TO RUN JAVASCRIPT
-        # Note: We use 'window.parent' because this script runs inside an iframe
         components.html(
             """
             <script>
