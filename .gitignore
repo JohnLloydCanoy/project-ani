@@ -32,3 +32,8 @@ __pycache__/
 *.gif
 *.mp
 *.mp4
+*.avi
+*.mov
+*.mkv
+*.wmv
+*.tiff
