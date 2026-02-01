@@ -3,6 +3,8 @@ from streamlit_float import *
 from components.camera.picture.take_picture import take_picture_view
 import datetime
 
+from components.registry_table import render_registry_table
+
 def dashboard_view():
     st.markdown("""
     <div style='text-align: center;'>
@@ -26,23 +28,13 @@ def dashboard_view():
         """, unsafe_allow_html=True)
     if "camera_open" not in st.session_state:
         st.session_state.camera_open = False
-    if st.button("SCANNED NOW! 📸", type="primary", use_container_width=True):
+    if st.button("SCAN NOW! 📸", type="primary", use_container_width=True):
         st.session_state.camera_open = True
         st.rerun()
     if st.session_state.camera_open:
         take_picture_view()
+    render_registry_table()
     
     st.write("---")
-    
-    float_init()
-    button_container = st.container()
-    with button_container:
-        if st.button("TALK TO ANI 🎙️", type="primary", use_container_width=True):
-            st.session_state.page = "chat"
-            st.rerun()
-    button_container.float(
-        "bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 9999;"
-    )
 
-# Call the function to render the page
 dashboard_view()
