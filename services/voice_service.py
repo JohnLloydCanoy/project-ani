@@ -1,3 +1,4 @@
+from time import time
 import streamlit as st
 from streamlit_mic_recorder import mic_recorder
 import google.generativeai as genai
@@ -55,5 +56,27 @@ def render_floating_voice_button():
         
         Return ONLY JSON.
         """
-        
-        
+        try:
+            model = genai.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
+            response = model.generate_content([
+                prompt,
+                {"mime_type": "audio/wav", "data": audio_bytes}
+            ])
+            
+            text = response.text.replace("```json", "").replace("```", "").strip()
+            s = text.find("{")
+            e = text.rfind("}") + 1
+            if s != -1 and e != -1:
+                intent = json.loads(text[s:e])
+                target = intent.get("target_page")
+                
+                if target:
+                    st.success(f"Going to {target}...")
+                    time.sleep(0.5)
+                    st.session_state.page = target
+                    st.rerun()
+            else:
+                st.warning("I didn't catch that command.")
+
+        except Exception as e:
+            st.error(f"Error: {e}")
