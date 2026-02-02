@@ -40,3 +40,20 @@ def render_floating_voice_button():
         key="global_voice_btn",
         format="wav"
     )
+    if audio:
+        # Shpeck: Show thinking toast
+        st.toast("🧠 ANI is thinking...", icon="🤔")
+        
+        audio_bytes = audio['bytes']
+        prompt = """
+        You are the navigation controller for "Project ANI".
+        Listen to the user (English/Tagalog/Bisaya) and map to JSON:
+        - {"target_page": "dashboard"} (Home, Balik, Menu)
+        - {"target_page": "scan"} (Camera, Picture, Litrato, Scan)
+        - {"target_page": "chat"} (Talk, Usap, Question, Advice)
+        - {"target_page": "registry"} (List, Records, Database)
+        
+        Return ONLY JSON.
+        """
+        
+        
