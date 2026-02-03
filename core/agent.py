@@ -29,10 +29,29 @@ def ask_gemini(image_file):
             "category": "Crop" or "Weed" or "Ornamental"
         }
         """
-        #Ill be Expecting a new promt for Chat box
         response = model.generate_content([prompt, image])
         
         return response.text
         
     except Exception as e:
         return f"Error connecting to Gemini: {e}"
+    
+def ask_gemini_chat(user_question):
+    """
+    New function for the "Talk to ANI" page.
+    Expects Text -> Returns Text.
+    """
+    try:
+        system_instruction = """
+        You are A.N.I. (Agricultural Network Intelligence), a friendly and expert farming assistant for the Philippines.
+        - Answer questions about farming, crops, and pests.
+        - Keep answers concise and helpful.
+        - If asked about non-farming topics, politely guide them back to agriculture.
+        """
+        full_prompt = f"{system_instruction}\n\nUser: {user_question}\nANI:"
+        
+        response = chat_model.generate_content(full_prompt)
+        return response.text
+        
+    except Exception as e:
+        return f"Sorry, I couldn't connect to the server. ({e})"
