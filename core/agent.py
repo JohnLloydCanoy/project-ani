@@ -50,7 +50,7 @@ def ask_gemini_chat(user_question):
         """
         full_prompt = f"{system_instruction}\n\nUser: {user_question}\nANI:"
         
-        response = chat_model.generate_content(full_prompt)
+        response = model.generate_content(full_prompt)
         return response.text
         
     except Exception as e:
