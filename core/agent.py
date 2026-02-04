@@ -31,6 +31,47 @@ def voice_response_function(text):
     gemini_tts_autoplay(text)
     return text
 
+function_declarations = [
+    genai.protos.FunctionDeclaration(
+        name="scan_plant",
+        description="Activate the camera to scan and analyze a plant",
+        parameters=genai.protos.Schema(
+            type=genai.protos.Type.OBJECT,
+            properties={}
+        )
+    ),
+    genai.protos.FunctionDeclaration(
+        name="open_registry", 
+        description="Open the plant registry/database to view saved scans",
+        parameters=genai.protos.Schema(
+            type=genai.protos.Type.OBJECT,
+            properties={}
+        )
+    ),
+    genai.protos.FunctionDeclaration(
+        name="go_home",
+        description="Go to the home dashboard",
+        parameters=genai.protos.Schema(
+            type=genai.protos.Type.OBJECT,
+            properties={}
+        )
+    ),
+    genai.protos.FunctionDeclaration(
+        name="voice_response",
+        description="Provide voice response for questions or general conversation",
+        parameters=genai.protos.Schema(
+            type=genai.protos.Type.OBJECT,
+            properties={
+                "text": genai.protos.Schema(
+                    type=genai.protos.Type.STRING,
+                    description="The text to speak out loud"
+                )
+            },
+            required=["text"]
+        )
+    )
+]
+
 # Core function for intereaction itself in the system 
 def ani_agent(prompt):
     """
