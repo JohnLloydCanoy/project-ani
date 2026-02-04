@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from core.agent import ask_gemini 
+from core.agent import ani_agent 
 
 def talk_to_ani_view():
     st.markdown("""
