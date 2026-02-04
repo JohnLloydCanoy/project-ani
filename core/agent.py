@@ -72,16 +72,60 @@ function_declarations = [
     )
 ]
 
+# Gemini model with tool functions
+model = genai.GenerativeModel(
+    "gemini-3-flash-preview",
+    tools=[genai.protos.Tool(function_declarations=function_declarations)]
+)
+
 # Core function for intereaction itself in the system 
 def ani_agent(prompt):
     """
-        The Brain of ANI.
-        - prompt: The user's new question.
-        - chat_history: The previous conversation (so it remembers context).
+    The Brain of ANI.
+    - prompt: The user's new question.
+    - Gemini decides whether to call a function or just respond with voice
     """
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        system_instruction = """
+        You are A.N.I. (Agricultural Network Intelligence), a smart farming assistant for Philippines.
+        
+        DECISION RULES:
+        - If user wants to scan/analyze a plant → call scan_plant function
+        - If user wants to see registry/database/saved scans → call open_registry function  
+        - If user wants to go home → call go_home function
+        - If user asks questions about farming/agriculture → call voice_response function
+        - Always provide helpful, concise responses in Filipino-accented English
+        
+        Examples:
+        - "Scan this plant" → scan_plant()
+        - "Show my registry" → open_registry()  
+        - "What fertilizer for rice?" → voice_response("For rice, use NPK fertilizer...")
+        """
+        
+        full_prompt = f"{system_instruction}\n\nUser: {prompt}"
+        
+        response = model.generate_content(full_prompt)
+        
+        # Check if Gemini wants to call a function
+        if response.candidates[0].content.parts[0].function_call:
+            function_call = response.candidates[0].content.parts[0].function_call
+            function_name = function_call.name
+            
+            # Execute the appropriate function
+            if function_name == "scan_plant":
+                return scan_plant_function()
+            elif function_name == "open_registry":
+                return open_registry_function()
+            elif function_name == "go_home":
+                return go_home_function()
+            elif function_name == "voice_response":
+                text_to_speak = function_call.args["text"]
+                return voice_response_function(text_to_speak)
+            
+        else:
+            # Fallback to regular text response with voice
+            return voice_response_function(response.text)
+            
     except Exception as e:
         return f"Error connecting to Gemini: {e}"
 
