@@ -9,7 +9,7 @@ if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel("gemini-3-flash-preview")
 
-
+# Core function for intereaction itself in the system 
 def ani_agent(prompt):
     """
     Core function to interact with Gemini 3 Flash model.
