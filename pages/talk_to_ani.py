@@ -23,7 +23,7 @@ def talk_to_ani_view():
             st.markdown(prompt)
         with st.chat_message("assistant"):
             with st.spinner("A.N.I. is thinking..."):
-                response = ask_gemini(prompt)
+                response = ani_agent(prompt)
                 time.sleep(1)
                 st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})

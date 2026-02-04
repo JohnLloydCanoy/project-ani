@@ -5,6 +5,7 @@ from google.genai import types
 import base64
 import json
 import time
+from core.agent import ani_agent
 
 # Initialize Client
 if "GEMINI_API_KEY" in st.secrets:
@@ -45,6 +46,7 @@ def gemini_tts_autoplay(text):
         return 0
 
 def render_floating_voice_button():
+    
     
     audio = mic_recorder(
         start_prompt="🎙️ TALK TO GEMINI 3",
