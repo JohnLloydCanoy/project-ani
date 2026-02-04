@@ -1,11 +1,27 @@
 import google.generativeai as genai
 import streamlit as st
 from PIL import Image
-# 
+
+# 'gemini-3-pro-preview' is best for deep diagnosis (Visual Reasoning)
+# 'gemini-3-flash-preview' is best for fast voice/chat
+
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel("gemini-3-flash-preview")
 
+
+def ani_agent(prompt):
+    """
+    Core function to interact with Gemini 3 Flash model.
+    Accepts a text prompt and returns the model's text response.
+    """
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Error connecting to Gemini: {e}"
+
+# This function for image analysis
 def ask_gemini(image_file):
     """
     Accepts an uploaded file object, converts it to an image,
@@ -55,3 +71,5 @@ def ask_gemini_chat(user_question):
         
     except Exception as e:
         return f"Sorry, I couldn't connect to the server. ({e})"
+    
+    

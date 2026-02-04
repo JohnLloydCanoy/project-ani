@@ -1,82 +1,103 @@
-from time import time
 import streamlit as st
 from streamlit_mic_recorder import mic_recorder
-import google.generativeai as genai
-import io
+from google import genai
+from google.genai import types
+import base64
 import json
+import time
+
+# Initialize Client
+if "GEMINI_API_KEY" in st.secrets:
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
+def gemini_tts_autoplay(text):
+    """
+    🎤 VOICE ENGINE: Uses Gemini 2.5 Flash
+    (Because Gemini 3 cannot generate audio output yet)
+    """
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.0-flash', # Keep this as 2.0/2.5 for Audio
+            contents=f"Say this in a helpful, Filipino-accented English: {text}",
+            config=types.GenerateContentConfig(
+                response_modalities=["AUDIO"], # Force Audio Output
+                speech_config=types.SpeechConfig(
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                            voice_name="Aoede"
+                        )
+                    )
+                )
+            )
+        )
+        audio_bytes = response.candidates[0].content.parts[0].inline_data.data
+        b64 = base64.b64encode(audio_bytes).decode()
+        md = f"""
+            <audio autoplay style="display:none;">
+            <source src="data:audio/wav;base64,{b64}" type="audio/wav">
+            </audio>
+            """
+        st.markdown(md, unsafe_allow_html=True)
+        return len(text) / 15 
+
+    except Exception as e:
+        st.error(f"TTS Error: {e}")
+        return 0
 
 def render_floating_voice_button():
-    """
-    Renders a recording button styled like a Primary Action button.
-    Handles recording -> Gemini -> Navigation.
-    """
-    st.markdown("""
-    <style>
-        /* Target the button created by streamlit-mic-recorder */
-        button[kind="secondary"] {
-            background-color: #FF4B4B !important; /* Streamlit Red */
-            color: white !important;
-            border: none !important;
-            border-radius: 50px !important; /* Pill shape */
-            padding: 15px 20px !important;
-            font-size: 18px !important;
-            font-weight: bold !important;
-            width: 100% !important; /* Full width of container */
-            box-shadow: 0px 4px 6px rgba(0,0,0,0.2) !important;
-            transition: all 0.2s ease;
-        }
-        button[kind="secondary"]:hover {
-            background-color: #FF2B2B !important;
-            transform: scale(1.02);
-        }
-        button[kind="secondary"]:active {
-            background-color: #BF3B3B !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
+    
     audio = mic_recorder(
-        start_prompt="🎙️ TALK TO ANI (Hold)",
-        stop_prompt="✋ Release to Send",
-        key="global_voice_btn",
+        start_prompt="🎙️ TALK TO GEMINI 3",
+        stop_prompt="✋ SEND",
+        key="gemini3_voice",
         format="wav"
     )
+
     if audio:
-        # Shpeck: Show thinking toast
-        st.toast("🧠 ANI is thinking...", icon="🤔")
-        
-        audio_bytes = audio['bytes']
+        st.toast("🧠 Gemini 3 is thinking...", icon="⚡")
         prompt = """
-        You are the navigation controller for "Project ANI".
-        Listen to the user (English/Tagalog/Bisaya) and map to JSON:
-        - {"target_page": "dashboard"} (Home, Balik, Menu)
-        - {"target_page": "scan"} (Camera, Picture, Litrato, Scan)
-        - {"target_page": "chat"} (Talk, Usap, Question, Advice)
-        - {"target_page": "registry"} (List, Records, Database)
+        You are the Brain of Project ANI.
+        User Audio: Tagalog, Bisaya, or English.
         
-        Return ONLY JSON.
+        TASK:
+        1. Understand the intent.
+        2. Create a short spoken reply (max 10 words).
+        3. Output JSON.
+        
+        JSON STRUCTURE:
+        {"target_page": "scan", "reply": "Opening scanner now."}
         """
+
         try:
-            model = genai.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
-            response = model.generate_content([
-                prompt,
-                {"mime_type": "audio/wav", "data": audio_bytes}
-            ])
+            logic_response = client.models.generate_content(
+                model="gemini-3-flash-preview", 
+                contents=[
+                    types.Content(
+                        parts=[
+                            types.Part(text=prompt),
+                            types.Part(inline_data=types.Blob(
+                                mime_type="audio/wav",
+                                data=audio['bytes']
+                            ))
+                        ]
+                    )
+                ],
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                )
+            )
+            data = json.loads(logic_response.text)
+            target = data.get("target_page")
+            reply = data.get("reply")
             
-            text = response.text.replace("```json", "").replace("```", "").strip()
-            s = text.find("{")
-            e = text.rfind("}") + 1
-            if s != -1 and e != -1:
-                intent = json.loads(text[s:e])
-                target = intent.get("target_page")
-                
-                if target:
-                    st.success(f"Going to {target}...")
-                    time.sleep(0.5)
-                    st.session_state.page = target
-                    st.rerun()
-            else:
-                st.warning("I didn't catch that command.")
+            # Speak with 2.5, Think with 3.0
+            st.success(f"🗣️ ANI: {reply}")
+            duration = gemini_tts_autoplay(reply)
+            
+            if target:
+                time.sleep(duration + 1)
+                st.session_state.page = target
+                st.rerun()
 
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"Gemini 3 Error: {e}")
