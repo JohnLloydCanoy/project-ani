@@ -12,7 +12,9 @@ model = genai.GenerativeModel("gemini-3-flash-preview")
 # Core function for intereaction itself in the system 
 def ani_agent(prompt):
     """
-        Talking to ANI - 
+        The Brain of ANI.
+        - prompt: The user's new question.
+        - chat_history: The previous conversation (so it remembers context).
     """
     try:
         response = model.generate_content(prompt)
