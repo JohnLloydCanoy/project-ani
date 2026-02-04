@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 from core.agent import ani_agent 
+from services.voice_service import render_floating_voice_button
 
 def talk_to_ani_view():
     st.markdown("""
@@ -27,4 +28,5 @@ def talk_to_ani_view():
                 time.sleep(1)
                 st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
+render_floating_voice_button()
 talk_to_ani_view()
