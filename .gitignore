@@ -29,3 +29,11 @@ __pycache__/
 *.jpg
 *.jpeg
 *.png
+*.gif
+*.mp
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wmv
+*.tiff

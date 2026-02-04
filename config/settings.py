@@ -1,4 +1,7 @@
 import streamlit as st
+from config.app_config import app_config
+
+
 
 SYSTEM_PROMPT = """
 You are ANI, an expert AI Agronomist 
@@ -19,3 +22,4 @@ def get_api_key():
     except FileNotFoundError:
         st.error("❌ .streamlit/secrets.toml file is missing!")
         st.stop()
+

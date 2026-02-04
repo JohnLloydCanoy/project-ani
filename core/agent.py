@@ -1,11 +1,9 @@
 import google.generativeai as genai
 import streamlit as st
 from PIL import Image
-
-
+# 
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
 model = genai.GenerativeModel("gemini-3-flash-preview")
 
 def ask_gemini(image_file):
@@ -37,3 +35,23 @@ def ask_gemini(image_file):
         
     except Exception as e:
         return f"Error connecting to Gemini: {e}"
+    
+def ask_gemini_chat(user_question):
+    """
+    New function for the "Talk to ANI" page.
+    Expects Text -> Returns Text.
+    """
+    try:
+        system_instruction = """
+        You are A.N.I. (Agricultural Network Intelligence), a friendly and expert farming assistant for the Philippines.
+        - Answer questions about farming, crops, and pests.
+        - Keep answers concise and helpful.
+        - If asked about non-farming topics, politely guide them back to agriculture.
+        """
+        full_prompt = f"{system_instruction}\n\nUser: {user_question}\nANI:"
+        
+        response = model.generate_content(full_prompt)
+        return response.text
+        
+    except Exception as e:
+        return f"Sorry, I couldn't connect to the server. ({e})"
