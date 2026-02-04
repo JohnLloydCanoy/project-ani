@@ -12,8 +12,7 @@ model = genai.GenerativeModel("gemini-3-flash-preview")
 # Core function for intereaction itself in the system 
 def ani_agent(prompt):
     """
-    Core function to interact with Gemini 3 Flash model.
-    Accepts a text prompt and returns the model's text response.
+        Talking to ANI - 
     """
     try:
         response = model.generate_content(prompt)
