@@ -1,6 +1,7 @@
 import google.generativeai as genai
 import streamlit as st
 from PIL import Image
+import json
 
 # 'gemini-3-pro-preview' is best for deep diagnosis (Visual Reasoning)
 # 'gemini-3-flash-preview' is best for fast voice/chat
