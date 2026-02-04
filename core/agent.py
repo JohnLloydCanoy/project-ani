@@ -8,7 +8,28 @@ import json
 
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-3-flash-preview")
+
+def scan_plant_function():
+    """Activate the plant scanning camera"""
+    st.session_state.camera_open = True
+    st.session_state.page = "scan"
+    return "Opening plant scanner now..."
+
+def open_registry_function():
+    """Open the plant registry/database"""
+    st.session_state.page = "registry"
+    return "Opening your plant registry..."
+
+def go_home_function():
+    """Go to home dashboard"""
+    st.session_state.page = "home"
+    return "Going to home dashboard..."
+
+def voice_response_function(text):
+    """Generate voice response using TTS"""
+    from services.voice_service import gemini_tts_autoplay
+    gemini_tts_autoplay(text)
+    return text
 
 # Core function for intereaction itself in the system 
 def ani_agent(prompt):
