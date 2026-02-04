@@ -57,49 +57,26 @@ def render_floating_voice_button():
 
     if audio:
         st.toast("🧠 Gemini 3 is thinking...", icon="⚡")
-        prompt = """
-        You are the Brain of Project ANI.
-        User Audio: Tagalog, Bisaya, or English.
-        
-        TASK:
-        1. Understand the intent.
-        2. Create a short spoken reply (max 10 words).
-        3. Output JSON.
-        
-        JSON STRUCTURE:
-        {"target_page": "scan", "reply": "Opening scanner now."}
-        """
-
         try:
-            logic_response = client.models.generate_content(
+            speech_to_text_response = client.models.generate_content(
                 model="gemini-3-flash-preview", 
                 contents=[
                     types.Content(
                         parts=[
-                            types.Part(text=prompt),
+                            types.Part(text="Convert this audio to text:"),
                             types.Part(inline_data=types.Blob(
                                 mime_type="audio/wav",
                                 data=audio['bytes']
                             ))
                         ]
                     )
-                ],
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json"
-                )
+                ]
             )
-            data = json.loads(logic_response.text)
-            target = data.get("target_page")
-            reply = data.get("reply")
             
-            # Speak with 2.5, Think with 3.0
-            st.success(f"🗣️ ANI: {reply}")
-            duration = gemini_tts_autoplay(reply)
+            user_text = speech_to_text_response.text
+            st.success(f"🗣️ You said: {user_text}")
+            response = ani_agent(user_text)  # <-- Use your existing ani_agent
+            gemini_tts_autoplay(response)
             
-            if target:
-                time.sleep(duration + 1)
-                st.session_state.page = target
-                st.rerun()
-
         except Exception as e:
-            st.error(f"Gemini 3 Error: {e}")
+            st.error(f"Voice processing error: {e}")
