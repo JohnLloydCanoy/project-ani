@@ -88,6 +88,88 @@ def render_3d_simulation(
                 border-radius: 20px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             }}
+            #health-status {{
+                position: absolute;
+                top: 50px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 12px;
+                font-weight: 500;
+                padding: 6px 16px;
+                border-radius: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }}
+            #health-status.healthy {{
+                background: rgba(76, 175, 80, 0.9);
+                color: white;
+            }}
+            #health-status.diseased {{
+                background: rgba(244, 67, 54, 0.9);
+                color: white;
+            }}
+            #disease-legend {{
+                position: absolute;
+                bottom: 45px;
+                right: 10px;
+                background: rgba(255,255,255,0.95);
+                padding: 10px 14px;
+                border-radius: 10px;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 11px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                display: none;
+            }}
+            #disease-legend.visible {{
+                display: block;
+            }}
+            .legend-item {{
+                display: flex;
+                align-items: center;
+                margin: 4px 0;
+            }}
+            .legend-color {{
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+                margin-right: 8px;
+            }}
+            #disease-controls {{
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(255,255,255,0.95);
+                padding: 10px 14px;
+                border-radius: 10px;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 11px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                display: none;
+            }}
+            #disease-controls.visible {{
+                display: block;
+            }}
+            #disease-controls label {{
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 500;
+                color: #D32F2F;
+            }}
+            #progression-slider {{
+                width: 120px;
+                cursor: pointer;
+            }}
+            #progression-value {{
+                color: #666;
+                margin-left: 8px;
+            }}
+            .pulse-warning {{
+                animation: pulse-red 1.5s ease-in-out infinite;
+            }}
+            @keyframes pulse-red {{
+                0%, 100% {{ box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3); }}
+                50% {{ box-shadow: 0 2px 20px rgba(244, 67, 54, 0.6); }}
+            }}
         </style>
     </head>
     <body>
@@ -97,6 +179,19 @@ def render_3d_simulation(
                 🌱 Building Botanical Model...
             </div>
             <div id="plant-label"></div>
+            <div id="health-status"></div>
+            <div id="disease-controls">
+                <label>🦠 Disease Progression</label>
+                <input type="range" id="progression-slider" min="0" max="100" value="50">
+                <span id="progression-value">50%</span>
+            </div>
+            <div id="disease-legend">
+                <div style="font-weight:600;margin-bottom:6px;color:#D32F2F;">⚠️ Affected Areas</div>
+                <div class="legend-item"><div class="legend-color" style="background:#FFEB3B;"></div>Early Stage</div>
+                <div class="legend-item"><div class="legend-color" style="background:#FF9800;"></div>Moderate</div>
+                <div class="legend-item"><div class="legend-color" style="background:#F44336;"></div>Severe</div>
+                <div class="legend-item"><div class="legend-color" style="background:#5D4037;"></div>Necrotic</div>
+            </div>
             <div id="info">🖱️ Drag to rotate • Scroll to zoom</div>
         </div>
         
@@ -117,10 +212,166 @@ def render_3d_simulation(
                 return result;
             }}
             
+            // ===== DISEASE VISUALIZATION SYSTEM =====
+            const diseaseSystem = {{
+                isHealthy: true,
+                diseaseName: '',
+                severity: 0.5,
+                affectedLeaves: [],
+                diseaseSpots: [],
+                
+                // Disease pattern definitions
+                patterns: {{
+                    'leaf_spot': {{ colors: ['#8B4513', '#654321', '#3E2723'], type: 'spots', density: 0.4 }},
+                    'blight': {{ colors: ['#3E2723', '#212121', '#1B1B1B'], type: 'patches', density: 0.6 }},
+                    'powdery_mildew': {{ colors: ['#E0E0E0', '#BDBDBD', '#F5F5F5'], type: 'coating', density: 0.5 }},
+                    'rust': {{ colors: ['#FF6F00', '#E65100', '#BF360C'], type: 'pustules', density: 0.3 }},
+                    'mosaic': {{ colors: ['#FFEB3B', '#C0CA33', '#8BC34A'], type: 'mottled', density: 0.7 }},
+                    'wilt': {{ colors: ['#8D6E63', '#6D4C41', '#5D4037'], type: 'droop', density: 0.8 }},
+                    'yellowing': {{ colors: ['#FDD835', '#FBC02D', '#F9A825'], type: 'gradient', density: 0.6 }},
+                    'rot': {{ colors: ['#3E2723', '#1B1B1B', '#5D4037'], type: 'decay', density: 0.4 }},
+                    'default': {{ colors: ['#FF9800', '#F44336', '#5D4037'], type: 'spots', density: 0.4 }}
+                }},
+                
+                // Detect disease from plant data
+                detectDisease: function() {{
+                    const healthStatus = get(plantData, 'health_assessment.health_status', 'Healthy');
+                    const diseaseName = get(plantData, 'health_assessment.disease_name', '');
+                    const severity = get(plantData, 'health_assessment.severity', 0);
+                    const issues = get(plantData, 'health_assessment.issues', []);
+                    
+                    this.isHealthy = healthStatus.toLowerCase() === 'healthy' && !diseaseName && issues.length === 0;
+                    this.diseaseName = diseaseName || (issues.length > 0 ? issues[0] : '');
+                    this.severity = severity || (this.isHealthy ? 0 : 0.5);
+                    
+                    return !this.isHealthy;
+                }},
+                
+                // Get pattern for disease type
+                getPattern: function() {{
+                    const name = this.diseaseName.toLowerCase();
+                    for (const [key, pattern] of Object.entries(this.patterns)) {{
+                        if (name.includes(key) || key.includes(name.split(' ')[0])) {{
+                            return pattern;
+                        }}
+                    }}
+                    // Fallback mappings
+                    if (name.includes('spot') || name.includes('anthracnose')) return this.patterns.leaf_spot;
+                    if (name.includes('blight') || name.includes('burn')) return this.patterns.blight;
+                    if (name.includes('mildew') || name.includes('powder')) return this.patterns.powdery_mildew;
+                    if (name.includes('rust')) return this.patterns.rust;
+                    if (name.includes('virus') || name.includes('mosaic')) return this.patterns.mosaic;
+                    if (name.includes('wilt') || name.includes('droop')) return this.patterns.wilt;
+                    if (name.includes('yellow') || name.includes('chlorosis') || name.includes('deficien')) return this.patterns.yellowing;
+                    if (name.includes('rot') || name.includes('decay')) return this.patterns.rot;
+                    return this.patterns.default;
+                }},
+                
+                // Apply disease effect to a leaf mesh
+                applyToLeaf: function(leaf, intensity) {{
+                    if (this.isHealthy || !leaf.material) return;
+                    
+                    const pattern = this.getPattern();
+                    const effectStrength = intensity * this.severity;
+                    
+                    // Store original color if not stored
+                    if (!leaf.userData.originalColor) {{
+                        leaf.userData.originalColor = leaf.material.color.clone();
+                        leaf.userData.originalRoughness = leaf.material.roughness;
+                    }}
+                    
+                    // Blend toward disease color based on intensity
+                    const diseaseColor = new THREE.Color(pattern.colors[Math.floor(effectStrength * (pattern.colors.length - 1))]);
+                    const blendedColor = leaf.userData.originalColor.clone().lerp(diseaseColor, effectStrength * 0.7);
+                    leaf.material.color.copy(blendedColor);
+                    
+                    // Increase roughness for diseased areas
+                    leaf.material.roughness = leaf.userData.originalRoughness + effectStrength * 0.4;
+                    
+                    // Add wilting effect for wilt-type diseases
+                    if (pattern.type === 'droop' && effectStrength > 0.3) {{
+                        leaf.rotation.x += effectStrength * 0.3;
+                    }}
+                    
+                    this.affectedLeaves.push(leaf);
+                }},
+                
+                // Create disease spot geometry
+                createDiseaseSpot: function(parent, position, size) {{
+                    const pattern = this.getPattern();
+                    const spotGeom = new THREE.SphereGeometry(size, 8, 8);
+                    spotGeom.scale(1, 0.3, 1);
+                    
+                    const colorIndex = Math.floor(Math.random() * pattern.colors.length);
+                    const spotMat = new THREE.MeshStandardMaterial({{
+                        color: new THREE.Color(pattern.colors[colorIndex]),
+                        roughness: 0.9,
+                        transparent: true,
+                        opacity: 0.85
+                    }});
+                    
+                    const spot = new THREE.Mesh(spotGeom, spotMat);
+                    spot.position.copy(position);
+                    spot.position.z += 0.01;
+                    spot.userData.isSpot = true;
+                    spot.userData.baseSize = size;
+                    parent.add(spot);
+                    this.diseaseSpots.push(spot);
+                    return spot;
+                }},
+                
+                // Update disease progression (called by slider)
+                updateProgression: function(value) {{
+                    this.severity = value / 100;
+                    
+                    // Update affected leaves
+                    this.affectedLeaves.forEach((leaf, index) => {{
+                        if (leaf.userData.originalColor) {{
+                            const pattern = this.getPattern();
+                            const effectStrength = (index / this.affectedLeaves.length) * this.severity;
+                            const diseaseColor = new THREE.Color(pattern.colors[Math.min(Math.floor(effectStrength * pattern.colors.length), pattern.colors.length - 1)]);
+                            const blendedColor = leaf.userData.originalColor.clone().lerp(diseaseColor, effectStrength * 0.8);
+                            leaf.material.color.copy(blendedColor);
+                        }}
+                    }});
+                    
+                    // Update spot sizes
+                    this.diseaseSpots.forEach(spot => {{
+                        const scale = 0.5 + this.severity;
+                        spot.scale.set(scale, scale, scale);
+                        spot.material.opacity = 0.5 + this.severity * 0.4;
+                    }});
+                }},
+                
+                // Animate disease spread
+                animate: function(time) {{
+                    if (this.isHealthy) return;
+                    
+                    // Pulse disease spots
+                    this.diseaseSpots.forEach((spot, i) => {{
+                        const pulse = 1 + Math.sin(time * 2 + i * 0.5) * 0.1;
+                        spot.scale.set(pulse, pulse * 0.3, pulse);
+                    }});
+                    
+                    // Subtle color fluctuation on affected leaves
+                    this.affectedLeaves.forEach((leaf, i) => {{
+                        if (leaf.material && leaf.userData.originalColor) {{
+                            const flicker = Math.sin(time * 1.5 + i * 0.3) * 0.03;
+                            leaf.material.color.offsetHSL(0, flicker, 0);
+                        }}
+                    }});
+                }}
+            }};
+            
             // Scene setup
             const container = document.getElementById('canvas-container');
             const loading = document.getElementById('loading');
             const plantLabel = document.getElementById('plant-label');
+            const healthStatus = document.getElementById('health-status');
+            const diseaseControls = document.getElementById('disease-controls');
+            const diseaseLegend = document.getElementById('disease-legend');
+            const progressionSlider = document.getElementById('progression-slider');
+            const progressionValue = document.getElementById('progression-value');
             
             // Show plant name
             const plantName = get(plantData, 'identified_plant.common_name', 'Plant');
@@ -1124,6 +1375,67 @@ def render_3d_simulation(
                 }}
                 
                 plantGroup.add(plant);
+                
+                // ===== APPLY DISEASE VISUALIZATION =====
+                const hasDisease = diseaseSystem.detectDisease();
+                
+                if (hasDisease) {{
+                    // Show disease UI elements
+                    healthStatus.textContent = '🦠 ' + (diseaseSystem.diseaseName || 'Disease Detected');
+                    healthStatus.className = 'diseased pulse-warning';
+                    diseaseControls.classList.add('visible');
+                    diseaseLegend.classList.add('visible');
+                    
+                    // Apply disease effects to leaves
+                    const applyDiseaseToGroup = (group) => {{
+                        group.children.forEach((child, index) => {{
+                            if (child.geometry?.type === 'ShapeGeometry') {{
+                                // Calculate intensity based on position/index (simulate spread)
+                                const spreadFactor = Math.random();
+                                const affectChance = diseaseSystem.severity + spreadFactor * 0.3;
+                                
+                                if (Math.random() < affectChance) {{
+                                    const intensity = 0.3 + Math.random() * 0.7;
+                                    diseaseSystem.applyToLeaf(child, intensity);
+                                    
+                                    // Add disease spots on some leaves
+                                    if (Math.random() < 0.4) {{
+                                        const spotCount = Math.floor(1 + Math.random() * 3);
+                                        for (let s = 0; s < spotCount; s++) {{
+                                            const spotPos = new THREE.Vector3(
+                                                (Math.random() - 0.5) * 0.1,
+                                                (Math.random() - 0.5) * 0.1,
+                                                0.02
+                                            );
+                                            spotPos.add(child.position);
+                                            diseaseSystem.createDiseaseSpot(child.parent, spotPos, 0.015 + Math.random() * 0.02);
+                                        }}
+                                    }}
+                                }}
+                            }}
+                            
+                            // Recurse into child groups
+                            if (child.type === 'Group') {{
+                                applyDiseaseToGroup(child);
+                            }}
+                        }});
+                    }};
+                    
+                    applyDiseaseToGroup(plant);
+                    
+                    // Setup slider event
+                    progressionSlider.addEventListener('input', (e) => {{
+                        const value = parseInt(e.target.value);
+                        progressionValue.textContent = value + '%';
+                        diseaseSystem.updateProgression(value);
+                    }});
+                    
+                }} else {{
+                    // Show healthy status
+                    healthStatus.textContent = '✓ Healthy';
+                    healthStatus.className = 'healthy';
+                }}
+                
                 loading.style.display = 'none';
             }}
             
@@ -1156,6 +1468,9 @@ def render_3d_simulation(
                     }}
                 }});
                 
+                // Animate disease effects
+                diseaseSystem.animate(time);
+                
                 controls.update();
                 renderer.render(scene, camera);
             }}
@@ -1175,7 +1490,6 @@ def render_3d_simulation(
     
     components.html(three_js_html, height=height + 20, scrolling=False)
 
-
 def get_default_structure() -> dict:
     """Returns default structure for placeholder."""
     return {
@@ -1186,5 +1500,15 @@ def get_default_structure() -> dict:
             "waviness": 0.3, "curl_amount": 0.3, "orientation": "outward"
         },
         "container": {"type": "pot", "shape": "round", "material": "terracotta", "color_hex": "#B5651D"},
-        "soil_ground": {"visible": True, "color_hex": "#3D2B1F"}
+        "soil_ground": {"visible": True, "color_hex": "#3D2B1F"},
+        "health_assessment": {
+            "health_status": "Healthy",
+            "disease_name": "",
+            "severity": 0,
+            "affected_percentage": 0,
+            "affected_areas": [],
+            "issues": [],
+            "disease_pattern": "none",
+            "disease_color_hex": ""
+        }
     }

@@ -229,6 +229,17 @@ def analyze_plant_structure(image_file) -> Optional[dict]:
                 "background_plants": false
             },
             
+            "health_assessment": {
+                "health_status": "Healthy" or "Name of Disease/Problem",
+                "disease_name": "" or "Specific disease name if detected",
+                "severity": 0.0 to 1.0 (0=healthy, 1=severe),
+                "affected_percentage": 0 to 100,
+                "affected_areas": ["leaf tips", "lower leaves", "stem base", "fruits", "whole plant"],
+                "issues": ["List of observed problems like yellowing, spots, wilting, pest damage"],
+                "disease_pattern": "spots" or "patches" or "coating" or "wilting" or "discoloration" or "none",
+                "disease_color_hex": "#8B4513" or color of disease symptoms
+            },
+            
             "3d_generation_notes": "Describe specific instructions for making this 3D model accurate. E.g., 'Large wavy outer leaves cupping inward around a central white cauliflower head. Leaves have prominent white midribs and bluish-green color. Leaves emerge from a thick central stem hidden by the head.'"
         }
         
@@ -237,6 +248,8 @@ def analyze_plant_structure(image_file) -> Optional[dict]:
         - Count ACTUAL visible leaves and estimate total including hidden ones
         - Use your botanical knowledge to fill in what you can't see
         - The 3d_generation_notes should be detailed enough for a 3D artist to recreate this plant
+        - CAREFULLY assess plant health: look for spots, discoloration, wilting, pest damage, yellowing
+        - If plant shows ANY signs of disease/damage, set health_status to the problem name and severity > 0
         """
         
         response = model.generate_content([prompt, image])
@@ -311,6 +324,16 @@ def get_default_plant_structure() -> dict:
             "setting": "outdoor",
             "lighting": "bright",
             "background_plants": False
+        },
+        "health_assessment": {
+            "health_status": "Healthy",
+            "disease_name": "",
+            "severity": 0,
+            "affected_percentage": 0,
+            "affected_areas": [],
+            "issues": [],
+            "disease_pattern": "none",
+            "disease_color_hex": ""
         },
         "3d_generation_notes": "Generic leafy plant with oval leaves arranged in a rosette pattern."
     }
