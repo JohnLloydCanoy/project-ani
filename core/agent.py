@@ -52,7 +52,7 @@ def ask_gemini(image_file):
     except Exception as e:
         return f"Error connecting to Gemini: {e}"
 
-
+# Main ANI agent function
 def ani_agent(user_question: str) -> str:
     """
     Main agent function for text-based chat with ANI.
@@ -359,3 +359,215 @@ def analyze_crop_for_simulation(image_file) -> Optional[dict]:
     except Exception as e:
         st.error(f"Analysis error: {e}")
         return None
+
+
+def analyze_multi_angle_images(image_files: list) -> Optional[dict]:
+    """
+    Analyze multiple images from different angles for more accurate 3D modeling.
+    Combines insights from all angles to create a comprehensive plant profile.
+    
+    Args:
+        image_files: List of uploaded image file objects (3-5 images recommended)
+        
+    Returns:
+        Dictionary with merged plant analysis and structure data
+    """
+    try:
+        if not image_files or len(image_files) == 0:
+            return None
+        
+        # Load all images
+        images = []
+        for img_file in image_files:
+            img_file.seek(0)
+            images.append(Image.open(img_file))
+        
+        # Build the prompt with all images
+        prompt = f"""
+        You are an expert 3D botanical modeler analyzing {len(images)} images of THE SAME PLANT from different angles.
+        
+        CRITICAL TASK: Combine information from ALL angles to create an accurate 3D model.
+        
+        For each image, note:
+        - What parts of the plant are visible (front, back, top, sides, underside of leaves)
+        - Any diseases, damage, or discoloration visible from that angle
+        - Details about structure (stems, branches, leaf arrangement)
+        
+        Then MERGE all observations into a single comprehensive analysis.
+        
+        Return ONLY a JSON object with this exact structure (no markdown):
+        {{
+            "identified_plant": {{
+                "common_name": "Plant Name",
+                "scientific_name": "Scientific name",
+                "plant_family": "Family name",
+                "growth_stage": "vegetative" or "flowering" or "fruiting" or "mature",
+                "confidence": 0.95
+            }},
+            
+            "multi_angle_observations": {{
+                "angles_analyzed": {len(images)},
+                "front_view_notes": "What was observed from front angle",
+                "back_view_notes": "What was observed from back angle (if available)",
+                "top_view_notes": "What was observed from top angle (if available)",
+                "side_view_notes": "What was observed from side angles",
+                "underside_notes": "Leaf underside observations (if visible)"
+            }},
+            
+            "plant_architecture": {{
+                "overall_form": "rosette" or "bushy" or "upright" or "vining" or "columnar" or "spreading",
+                "symmetry": "radial" or "bilateral" or "asymmetric",
+                "height_cm": 40,
+                "width_cm": 50,
+                "has_central_head": false,
+                "head_type": "none" or "cauliflower" or "cabbage" or "broccoli" or "lettuce",
+                "fruit_type": "none" or "tomato" or "pepper" or "eggplant" or "cucumber",
+                "fruit_count": 0,
+                "fruit_color_hex": "#FF0000"
+            }},
+            
+            "leaf_system": {{
+                "arrangement": "rosette" or "alternate" or "opposite" or "whorled",
+                "total_count": 12,
+                "shape": "oval" or "elongated" or "heart" or "lobed" or "wavy",
+                "primary_color_hex": "#228B22",
+                "secondary_color_hex": "#90EE90",
+                "underside_color_hex": "#98FB98",
+                "waviness": 0.3,
+                "orientation": "upward" or "outward" or "drooping" or "cupping"
+            }},
+            
+            "health_analysis": {{
+                "overall_health_percentage": 85,
+                "health_status": "Healthy" or "Disease Name",
+                "disease_severity": "None" or "Mild" or "Moderate" or "Severe",
+                "affected_leaves_count": 0,
+                "affected_area_percent": 5,
+                "disease_locations": ["top leaves", "underside of lower leaves"],
+                "symptoms_observed": ["yellowing", "spots", "wilting"],
+                "diseases_detected": []
+            }},
+            
+            "container": {{
+                "type": "pot" or "ground" or "raised_bed" or "field",
+                "shape": "round" or "square" or "natural",
+                "material": "terracotta" or "plastic" or "soil",
+                "color_hex": "#8B4513"
+            }},
+            
+            "environmental_context": {{
+                "setting": "indoor" or "outdoor" or "greenhouse" or "field",
+                "lighting": "bright" or "moderate" or "low"
+            }},
+            
+            "3d_generation_notes": "Detailed notes combining all angle observations for accurate 3D modeling. Include hidden parts that were revealed by multi-angle views.",
+            
+            "recommended_action": "One sentence recommendation based on complete analysis"
+        }}
+        """
+        
+        # Send all images with the prompt
+        content = [prompt] + images
+        response = model.generate_content(content)
+        clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        
+        return json.loads(clean_json)
+        
+    except Exception as e:
+        st.error(f"Multi-angle analysis error: {e}")
+        return None
+
+
+def compare_plant_health_over_time(current_analysis: dict, history: list) -> dict:
+    """
+    Compare current plant health with historical data to detect progression.
+    
+    Args:
+        current_analysis: Current scan analysis dictionary
+        history: List of previous analysis dictionaries with timestamps
+        
+    Returns:
+        Dictionary with progression analysis
+    """
+    try:
+        if not history or len(history) == 0:
+            return {
+                "has_history": False,
+                "trend": "first_scan",
+                "message": "This is the first scan. Future scans will show progression.",
+                "recommendation": "Continue monitoring regularly."
+            }
+        
+        # Get health percentages over time
+        current_health = current_analysis.get("health_percentage", 0) or \
+                        current_analysis.get("health_analysis", {}).get("overall_health_percentage", 0)
+        
+        health_timeline = []
+        for h in history:
+            hp = h.get("analysis_json", {}).get("health_percentage", 0) or \
+                h.get("analysis_json", {}).get("health_analysis", {}).get("overall_health_percentage", 0)
+            health_timeline.append({
+                "date": h.get("created_at", "Unknown"),
+                "health": hp,
+                "status": h.get("health_status", "Unknown")
+            })
+        
+        # Calculate trend
+        if len(health_timeline) >= 2:
+            first_health = health_timeline[-1]["health"]  # Oldest
+            last_health = health_timeline[0]["health"]    # Most recent before current
+            
+            health_change = current_health - first_health
+            recent_change = current_health - last_health
+            
+            if health_change > 10:
+                trend = "improving"
+                trend_emoji = "📈"
+                message = f"Plant health improved by {health_change}% since first scan!"
+            elif health_change < -10:
+                trend = "declining"
+                trend_emoji = "📉"
+                message = f"Plant health declined by {abs(health_change)}% since first scan. Action needed."
+            else:
+                trend = "stable"
+                trend_emoji = "➡️"
+                message = f"Plant health is stable (±{abs(health_change)}% change)."
+            
+            # Generate recommendation based on trend
+            if trend == "declining":
+                recommendation = "The plant's health is declining. Check for pests, diseases, or environmental stress. Consider adjusting watering or fertilization."
+            elif trend == "improving":
+                recommendation = "Treatment is working! Continue current care routine."
+            else:
+                recommendation = "Plant is stable. Maintain current care and continue monitoring."
+            
+            return {
+                "has_history": True,
+                "scan_count": len(history) + 1,
+                "trend": trend,
+                "trend_emoji": trend_emoji,
+                "health_change_total": health_change,
+                "health_change_recent": recent_change,
+                "current_health": current_health,
+                "first_health": first_health,
+                "message": message,
+                "health_timeline": health_timeline,
+                "recommendation": recommendation
+            }
+        else:
+            return {
+                "has_history": True,
+                "scan_count": 2,
+                "trend": "insufficient_data",
+                "message": "Need at least 2 previous scans to determine trend.",
+                "health_timeline": health_timeline,
+                "recommendation": "Continue scanning regularly to track progression."
+            }
+            
+    except Exception as e:
+        return {
+            "has_history": False,
+            "trend": "error",
+            "message": f"Could not analyze progression: {e}",
+            "recommendation": "Continue monitoring."
+        }
