@@ -363,6 +363,99 @@ def render_3d_simulation(
                 }}
             }};
             
+            // ===== GROWTH SIMULATION SYSTEM =====
+            const growthSystem = {{
+                enabled: false,
+                stage: 'mature',
+                scale: 1.0,
+                leafFactor: 1.0,
+                fruitFactor: 1.0,
+                colorShift: 0.0,
+                scenarioEffects: null,
+                
+                // Initialize from plant data
+                init: function() {{
+                    const growthData = get(plantData, 'growth_simulation', null);
+                    const scenarioData = get(plantData, 'scenario_effects', null);
+                    
+                    if (growthData) {{
+                        this.enabled = true;
+                        this.stage = growthData.stage || 'mature';
+                        this.scale = growthData.scale || 1.0;
+                        this.leafFactor = growthData.leaf_factor || 1.0;
+                        this.fruitFactor = growthData.fruit_factor || 1.0;
+                        this.colorShift = growthData.color_shift || 0.0;
+                    }}
+                    
+                    if (scenarioData) {{
+                        this.scenarioEffects = scenarioData;
+                    }}
+                }},
+                
+                // Apply growth scale to a group
+                applyScale: function(group) {{
+                    if (!this.enabled) return;
+                    group.scale.set(this.scale, this.scale, this.scale);
+                    
+                    // Adjust position for smaller plants (keep them grounded)
+                    if (this.scale < 1.0) {{
+                        group.position.y = (1 - this.scale) * -0.3;
+                    }}
+                }},
+                
+                // Apply scenario effects (color shifts, drooping, etc.)
+                applyScenarioEffects: function(mesh) {{
+                    if (!this.scenarioEffects) return;
+                    
+                    const effects = this.scenarioEffects;
+                    
+                    // Apply color shift from scenarios
+                    if (mesh.material && effects.color_shift) {{
+                        const shift = effects.color_shift;
+                        mesh.material.color.offsetHSL(
+                            shift.hue || 0,
+                            shift.saturation || 0,
+                            shift.lightness || 0
+                        );
+                    }}
+                    
+                    // Apply drooping for water stress
+                    if (effects.leaf_droop && effects.leaf_droop > 0) {{
+                        if (mesh.geometry?.type === 'ShapeGeometry') {{
+                            mesh.rotation.x += effects.leaf_droop * 0.5;
+                        }}
+                    }}
+                }},
+                
+                // Get stage-appropriate leaf count
+                getLeafCount: function(baseCount) {{
+                    return Math.max(2, Math.floor(baseCount * this.leafFactor));
+                }},
+                
+                // Get stage-appropriate fruit count
+                getFruitCount: function(baseCount) {{
+                    return Math.floor(baseCount * this.fruitFactor);
+                }},
+                
+                // Apply color shift for growth stage (seedlings are lighter, senescence is yellowing)
+                applyStageColor: function(color) {{
+                    if (this.colorShift === 0) return color;
+                    
+                    const c = new THREE.Color(color);
+                    if (this.colorShift > 0) {{
+                        // Lighter (seedling)
+                        c.offsetHSL(0.02, -0.1, this.colorShift * 0.15);
+                    }} else {{
+                        // Yellowing (senescence)
+                        c.offsetHSL(0.08, -0.15, this.colorShift * 0.1);
+                    }}
+                    return '#' + c.getHexString();
+                }}
+            }};
+            
+            // Initialize growth system
+            growthSystem.init();
+            
             // Scene setup
             const container = document.getElementById('canvas-container');
             const loading = document.getElementById('loading');
@@ -373,9 +466,14 @@ def render_3d_simulation(
             const progressionSlider = document.getElementById('progression-slider');
             const progressionValue = document.getElementById('progression-value');
             
-            // Show plant name
+            // Show plant name with growth stage
             const plantName = get(plantData, 'identified_plant.common_name', 'Plant');
-            plantLabel.textContent = '🌿 ' + plantName;
+            const stageDisplay = get(plantData, 'growth_simulation.stage_display', '');
+            if (stageDisplay && stageDisplay !== 'Mature/Harvest Ready') {{
+                plantLabel.textContent = '🌿 ' + plantName + ' (' + stageDisplay + ')';
+            }} else {{
+                plantLabel.textContent = '🌿 ' + plantName;
+            }}
             
             const scene = new THREE.Scene();
             
@@ -1375,6 +1473,25 @@ def render_3d_simulation(
                 }}
                 
                 plantGroup.add(plant);
+                
+                // ===== APPLY GROWTH SIMULATION =====
+                if (growthSystem.enabled) {{
+                    // Apply scale based on growth stage
+                    growthSystem.applyScale(plant);
+                    
+                    // Apply scenario effects to all meshes
+                    const applyGrowthEffects = (group) => {{
+                        group.children.forEach(child => {{
+                            if (child.material) {{
+                                growthSystem.applyScenarioEffects(child);
+                            }}
+                            if (child.type === 'Group') {{
+                                applyGrowthEffects(child);
+                            }}
+                        }});
+                    }};
+                    applyGrowthEffects(plant);
+                }}
                 
                 // ===== APPLY DISEASE VISUALIZATION =====
                 const hasDisease = diseaseSystem.detectDisease();

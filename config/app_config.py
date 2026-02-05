@@ -1,5 +1,7 @@
 import streamlit as st
 import uuid
+from core.api_key_manager import render_api_usage_sidebar
+
 # Here we define the app_config function to set the Streamlit page configuration
 
 def app_config():
@@ -24,3 +26,7 @@ def app_config():
     with st.sidebar:
         st.markdown(f"**🔑 Device ID:** `{st.session_state.user_id}`")
         st.caption("Data is linked to this session ID.")
+        
+        # API Usage Monitor
+        st.divider()
+        render_api_usage_sidebar()

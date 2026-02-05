@@ -8,6 +8,7 @@ from core.agent import (
     compare_plant_health_over_time
 )
 from components.digital_twin import render_3d_simulation
+from components.growth_simulator import integrate_growth_simulation, render_growth_timeline
 from services.db_service import (
     fetch_plant_history,
     get_unique_tracked_plants,
@@ -487,15 +488,34 @@ def add_tracking_scan(uploaded_file, tracking_id, plant_name, device_id):
 
 
 def render_3d_preview():
-    """Render the 3D simulation preview."""
+    """Render the 3D simulation preview with growth simulation controls."""
     st.markdown("### 🎮 3D Simulation")
     
     if st.session_state.simulation_active:
-        render_3d_simulation(
-            texture_data=st.session_state.generated_texture,
-            plant_structure=st.session_state.plant_structure,
-            height=400
-        )
+        # Apply growth simulation if plant structure exists
+        plant_structure = st.session_state.plant_structure
+        
+        if plant_structure:
+            # Integrate growth simulation controls (renders expander with sliders)
+            # Returns modified structure based on growth stage and scenarios
+            modified_structure = integrate_growth_simulation(plant_structure)
+            
+            # Render 3D with potentially modified structure
+            render_3d_simulation(
+                texture_data=st.session_state.generated_texture,
+                plant_structure=modified_structure,
+                height=400
+            )
+            
+            # Show growth timeline for the plant
+            plant_name = plant_structure.get("identified_plant", {}).get("common_name", "Plant")
+            render_growth_timeline(plant_name)
+        else:
+            render_3d_simulation(
+                texture_data=st.session_state.generated_texture,
+                plant_structure=plant_structure,
+                height=400
+            )
         
         # Show analysis results
         if st.session_state.crop_analysis:

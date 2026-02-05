@@ -8,17 +8,25 @@ import base64
 from io import BytesIO
 from typing import Optional
 
+# Import API Key Manager
+from core.api_key_manager import APIKeyManager, track_api_call, init_api_manager
+
 # 'gemini-3-pro-preview' is best for deep diagnosis (Visual Reasoning)
 # 'gemini-3-flash-preview' is best for fast voice/chat
 
-if "GEMINI_API_KEY" in st.secrets:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
+# Initialize API Key Manager (handles multiple keys, rotation, rate limiting)
+api_manager = init_api_manager()
 
 # Gemini model with tool functions
 model = genai.GenerativeModel(
     "gemini-3-pro-preview",
 )
+
+
+def _get_model():
+    """Get model with refreshed API key (for rotation support)."""
+    api_manager.configure_genai()
+    return genai.GenerativeModel("gemini-3-pro-preview")
 
 
 # This function for image analysis
@@ -45,11 +53,18 @@ def ask_gemini(image_file):
             "category": "Crop" or "Weed" or "Ornamental"
         }
         """
-        response = model.generate_content([prompt, image])
+        current_model = _get_model()
+        response = current_model.generate_content([prompt, image])
+        
+        # Track successful request
+        tokens_used = len(response.text) // 4 if response.text else 0
+        api_manager.record_request(tokens_used=tokens_used, success=True)
         
         return response.text
         
     except Exception as e:
+        # Track failed request
+        api_manager.record_request(success=False, error_msg=str(e))
         return f"Error connecting to Gemini: {e}"
 
 # Main ANI agent function
@@ -71,10 +86,18 @@ def ani_agent(user_question: str) -> str:
         """
         full_prompt = f"{system_instruction}\n\nUser: {user_question}\nANI:"
         
-        response = model.generate_content(full_prompt)
+        current_model = _get_model()
+        response = current_model.generate_content(full_prompt)
+        
+        # Track successful request
+        tokens_used = len(response.text) // 4 if response.text else 0
+        api_manager.record_request(tokens_used=tokens_used, success=True)
+        
         return response.text
         
     except Exception as e:
+        # Track failed request
+        api_manager.record_request(success=False, error_msg=str(e))
         return f"Sorry, I couldn't connect to the server. ({e})"
 
 
@@ -252,12 +275,19 @@ def analyze_plant_structure(image_file) -> Optional[dict]:
         - If plant shows ANY signs of disease/damage, set health_status to the problem name and severity > 0
         """
         
-        response = model.generate_content([prompt, image])
+        current_model = _get_model()
+        response = current_model.generate_content([prompt, image])
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        
+        # Track successful request
+        tokens_used = len(response.text) // 4 if response.text else 0
+        api_manager.record_request(tokens_used=tokens_used, success=True)
         
         return json.loads(clean_json)
         
     except Exception as e:
+        # Track failed request
+        api_manager.record_request(success=False, error_msg=str(e))
         st.error(f"Plant structure analysis error: {e}")
         return get_default_plant_structure()
 
@@ -374,12 +404,19 @@ def analyze_crop_for_simulation(image_file) -> Optional[dict]:
         }
         """
         
-        response = model.generate_content([prompt, image])
+        current_model = _get_model()
+        response = current_model.generate_content([prompt, image])
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        
+        # Track successful request
+        tokens_used = len(response.text) // 4 if response.text else 0
+        api_manager.record_request(tokens_used=tokens_used, success=True)
         
         return json.loads(clean_json)
         
     except Exception as e:
+        # Track failed request
+        api_manager.record_request(success=False, error_msg=str(e))
         st.error(f"Analysis error: {e}")
         return None
 
@@ -491,12 +528,19 @@ def analyze_multi_angle_images(image_files: list) -> Optional[dict]:
         
         # Send all images with the prompt
         content = [prompt] + images
-        response = model.generate_content(content)
+        current_model = _get_model()
+        response = current_model.generate_content(content)
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        
+        # Track successful request
+        tokens_used = len(response.text) // 4 if response.text else 0
+        api_manager.record_request(tokens_used=tokens_used, success=True)
         
         return json.loads(clean_json)
         
     except Exception as e:
+        # Track failed request
+        api_manager.record_request(success=False, error_msg=str(e))
         st.error(f"Multi-angle analysis error: {e}")
         return None
 
