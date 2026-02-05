@@ -392,7 +392,7 @@ def render_3d_simulation(
                 const fruitColor = get(arch, 'fruit_color_hex', '#FF6347');
                 const fruitCount = get(arch, 'fruit_count', 5);
                 const fruitSize = get(arch, 'fruit_size', 0.08);
-                const plantHeight = get(arch, 'height_estimate', 1.2);
+                const plantHeight = get(arch, 'height_cm', 80) / 100 || 0.8;
                 
                 // Main stem
                 const stemGeometry = new THREE.CylinderGeometry(0.03, 0.04, plantHeight, 12);
@@ -401,14 +401,14 @@ def render_3d_simulation(
                     roughness: 0.8
                 }});
                 const mainStem = new THREE.Mesh(stemGeometry, stemMaterial);
-                mainStem.position.y = 0.6 + plantHeight / 2;
+                mainStem.position.y = 0.15 + plantHeight / 2;
                 mainStem.castShadow = true;
                 group.add(mainStem);
                 
                 // Branches with leaves and fruits
                 const branchCount = 4 + Math.floor(Math.random() * 3);
                 for (let b = 0; b < branchCount; b++) {{
-                    const branchY = 0.7 + (b / branchCount) * plantHeight * 0.8;
+                    const branchY = 0.25 + (b / branchCount) * plantHeight * 0.8;
                     const branchAngle = (b / branchCount) * Math.PI * 2 + Math.random() * 0.5;
                     const branchLength = 0.2 + Math.random() * 0.15;
                     
@@ -447,7 +447,336 @@ def render_3d_simulation(
                 
                 // Fruits
                 for (let f = 0; f < fruitCount; f++) {{
-                    const fruitY = 0.8 + Math.random() * plantHeight * 0.6;
+                    const fruitY = 0.35 + Math.random() * plantHeight * 0.6;
+                    const fruitAngle = Math.random() * Math.PI * 2;
+                    const fruitRadius = 0.1 + Math.random() * 0.1;
+                    
+                    let fruitGeom;
+                    if (fruitType === 'tomato' || fruitType === 'cherry_tomato') {{
+                        fruitGeom = new THREE.SphereGeometry(fruitSize * (0.8 + Math.random() * 0.4), 16, 16);
+                    }} else if (fruitType === 'pepper' || fruitType === 'chili') {{
+                        fruitGeom = new THREE.ConeGeometry(fruitSize * 0.5, fruitSize * 3, 12);
+                    }} else if (fruitType === 'eggplant') {{
+                        fruitGeom = new THREE.SphereGeometry(fruitSize, 16, 16);
+                        fruitGeom.scale(0.6, 1.5, 0.6);
+                    }} else if (fruitType === 'cucumber' || fruitType === 'squash') {{
+                        fruitGeom = new THREE.CylinderGeometry(fruitSize * 0.4, fruitSize * 0.5, fruitSize * 3, 12);
+                    }} else {{
+                        fruitGeom = new THREE.SphereGeometry(fruitSize, 16, 16);
+                    }}
+                    
+                    const fruitMat = new THREE.MeshStandardMaterial({{
+                        color: new THREE.Color(fruitColor),
+                        roughness: 0.3,
+                        metalness: 0.1
+                    }});
+                    const fruit = new THREE.Mesh(fruitGeom, fruitMat);
+                    fruit.position.set(
+                        Math.cos(fruitAngle) * fruitRadius,
+                        fruitY,
+                        Math.sin(fruitAngle) * fruitRadius
+                    );
+                    if (fruitType === 'pepper' || fruitType === 'chili') {{
+                        fruit.rotation.x = Math.PI;
+                    }}
+                    fruit.castShadow = true;
+                    group.add(fruit);
+                }}
+                
+                return group;
+            }}
+            
+            // GRASS/GRAIN Builder (rice, corn, wheat, bamboo)
+            function buildGrassPlant() {{
+                const group = new THREE.Group();
+                const arch = get(plantData, 'plant_architecture', {{}});
+                const leafSys = get(plantData, 'leaf_system', {{}});
+                
+                const plantHeight = get(arch, 'height_cm', 100) / 100 || 1.0;
+                const leafColor = get(leafSys, 'primary_color_hex', '#228B22');
+                const leafCount = get(leafSys, 'total_count', 8);
+                const plantName = get(plantData, 'identified_plant.common_name', '').toLowerCase();
+                
+                const isCorn = plantName.includes('corn') || plantName.includes('maize');
+                const isRice = plantName.includes('rice') || plantName.includes('palay');
+                
+                if (isCorn) {{
+                    // Corn - thick stalk with large leaves
+                    const stalkGeom = new THREE.CylinderGeometry(0.04, 0.05, plantHeight, 12);
+                    const stalkMat = new THREE.MeshStandardMaterial({{ color: 0x8BC34A, roughness: 0.7 }});
+                    const stalk = new THREE.Mesh(stalkGeom, stalkMat);
+                    stalk.position.y = 0.15 + plantHeight / 2;
+                    group.add(stalk);
+                    
+                    // Corn leaves - long and arching
+                    for (let i = 0; i < 8; i++) {{
+                        const leafGeom = createGrassLeaf(0.08, 0.5 + Math.random() * 0.2);
+                        const leafMat = new THREE.MeshStandardMaterial({{
+                            color: new THREE.Color(leafColor),
+                            side: THREE.DoubleSide,
+                            roughness: 0.6
+                        }});
+                        const leaf = new THREE.Mesh(leafGeom, leafMat);
+                        const angle = (i / 8) * Math.PI * 2;
+                        leaf.position.y = 0.3 + (i * 0.12);
+                        leaf.rotation.y = angle;
+                        leaf.rotation.z = 0.5 + Math.random() * 0.3;
+                        group.add(leaf);
+                    }}
+                    
+                    // Corn cob
+                    const cobGeom = new THREE.CylinderGeometry(0.05, 0.04, 0.2, 12);
+                    const cobMat = new THREE.MeshStandardMaterial({{ color: 0xFFD700, roughness: 0.5 }});
+                    const cob = new THREE.Mesh(cobGeom, cobMat);
+                    cob.position.set(0.08, plantHeight * 0.6, 0);
+                    cob.rotation.z = 0.3;
+                    group.add(cob);
+                }} else {{
+                    // Rice/wheat - thin stalks in a clump
+                    for (let i = 0; i < leafCount; i++) {{
+                        const stalkHeight = plantHeight * (0.7 + Math.random() * 0.3);
+                        const stalkGeom = new THREE.CylinderGeometry(0.008, 0.012, stalkHeight, 6);
+                        const stalkMat = new THREE.MeshStandardMaterial({{ 
+                            color: new THREE.Color(leafColor), 
+                            roughness: 0.6 
+                        }});
+                        const stalk = new THREE.Mesh(stalkGeom, stalkMat);
+                        const angle = (i / leafCount) * Math.PI * 2;
+                        const radius = 0.03 + Math.random() * 0.05;
+                        stalk.position.set(
+                            Math.cos(angle) * radius,
+                            0.12 + stalkHeight / 2,
+                            Math.sin(angle) * radius
+                        );
+                        stalk.rotation.x = (Math.random() - 0.5) * 0.15;
+                        stalk.rotation.z = (Math.random() - 0.5) * 0.15;
+                        group.add(stalk);
+                        
+                        // Rice grain head (panicle)
+                        if (isRice) {{
+                            const grainHead = new THREE.Group();
+                            for (let g = 0; g < 5; g++) {{
+                                const grainGeom = new THREE.SphereGeometry(0.012, 8, 8);
+                                grainGeom.scale(1, 1.5, 1);
+                                const grainMat = new THREE.MeshStandardMaterial({{ color: 0xDAA520, roughness: 0.4 }});
+                                const grain = new THREE.Mesh(grainGeom, grainMat);
+                                grain.position.y = g * 0.02;
+                                grain.position.x = (Math.random() - 0.5) * 0.02;
+                                grainHead.add(grain);
+                            }}
+                            grainHead.position.set(stalk.position.x, 0.12 + stalkHeight, stalk.position.z);
+                            grainHead.rotation.z = 0.4;
+                            group.add(grainHead);
+                        }}
+                    }}
+                }}
+                
+                return group;
+            }}
+            
+            // VINE PLANT Builder (kangkong, sweet potato, cucumber vine)
+            function buildVinePlant() {{
+                const group = new THREE.Group();
+                const leafSys = get(plantData, 'leaf_system', {{}});
+                
+                const leafColor = get(leafSys, 'primary_color_hex', '#228B22');
+                const leafShape = get(leafSys, 'shape', 'heart');
+                const leafCount = get(leafSys, 'total_count', 10);
+                
+                // Trailing vines
+                for (let v = 0; v < 3; v++) {{
+                    const vineAngle = (v / 3) * Math.PI * 2;
+                    const vineLength = 0.6 + Math.random() * 0.3;
+                    
+                    // Vine stem
+                    const vineGeom = new THREE.TubeGeometry(
+                        new THREE.CatmullRomCurve3([
+                            new THREE.Vector3(0, 0.2, 0),
+                            new THREE.Vector3(Math.cos(vineAngle) * 0.2, 0.15, Math.sin(vineAngle) * 0.2),
+                            new THREE.Vector3(Math.cos(vineAngle) * 0.4, 0.08, Math.sin(vineAngle) * 0.4),
+                            new THREE.Vector3(Math.cos(vineAngle) * vineLength, 0.05, Math.sin(vineAngle) * vineLength)
+                        ]),
+                        20, 0.015, 8, false
+                    );
+                    const vineMat = new THREE.MeshStandardMaterial({{ color: 0x2E7D32, roughness: 0.6 }});
+                    const vine = new THREE.Mesh(vineGeom, vineMat);
+                    group.add(vine);
+                    
+                    // Leaves along vine
+                    for (let l = 0; l < 4; l++) {{
+                        const t = (l + 1) / 5;
+                        const leafGeom = createLeafByShape(leafShape, 0.08, 0.12, 0.3);
+                        const leafMat = new THREE.MeshStandardMaterial({{
+                            color: new THREE.Color(leafColor),
+                            side: THREE.DoubleSide,
+                            roughness: 0.5
+                        }});
+                        const leaf = new THREE.Mesh(leafGeom, leafMat);
+                        leaf.position.set(
+                            Math.cos(vineAngle) * (t * vineLength),
+                            0.1 + 0.1 * (1 - t),
+                            Math.sin(vineAngle) * (t * vineLength)
+                        );
+                        leaf.rotation.x = -0.5;
+                        leaf.rotation.y = vineAngle + Math.random() * 0.5;
+                        const scale = 0.8 + Math.random() * 0.4;
+                        leaf.scale.set(scale, scale, scale);
+                        group.add(leaf);
+                    }}
+                }}
+                
+                return group;
+            }}
+            
+            // ROOT VEGETABLE Builder (carrot, radish, onion)
+            function buildRootVegetable() {{
+                const group = new THREE.Group();
+                const arch = get(plantData, 'plant_architecture', {{}});
+                const leafSys = get(plantData, 'leaf_system', {{}});
+                
+                const rootType = get(arch, 'root_type', 'taproot');
+                const rootColor = get(arch, 'root_color_hex', '#FF6600');
+                const leafColor = get(leafSys, 'primary_color_hex', '#228B22');
+                const plantName = get(plantData, 'identified_plant.common_name', '').toLowerCase();
+                
+                const isCarrot = plantName.includes('carrot');
+                const isOnion = plantName.includes('onion') || plantName.includes('sibuyas');
+                const isRadish = plantName.includes('radish') || plantName.includes('labanos');
+                
+                // Root part (partially visible)
+                let rootGeom;
+                if (isCarrot) {{
+                    rootGeom = new THREE.ConeGeometry(0.06, 0.25, 12);
+                }} else if (isOnion) {{
+                    rootGeom = new THREE.SphereGeometry(0.1, 16, 16);
+                }} else {{
+                    rootGeom = new THREE.SphereGeometry(0.08, 16, 16);
+                    rootGeom.scale(1, 1.3, 1);
+                }}
+                
+                const rootMat = new THREE.MeshStandardMaterial({{
+                    color: new THREE.Color(rootColor),
+                    roughness: 0.7
+                }});
+                const root = new THREE.Mesh(rootGeom, rootMat);
+                root.position.y = isCarrot ? 0.08 : 0.12;
+                if (isCarrot) root.rotation.x = Math.PI;
+                group.add(root);
+                
+                // Leaves/tops
+                const leafCount = isOnion ? 5 : 8;
+                for (let i = 0; i < leafCount; i++) {{
+                    const angle = (i / leafCount) * Math.PI * 2;
+                    let leafGeom;
+                    
+                    if (isCarrot) {{
+                        // Feathery carrot tops
+                        leafGeom = createCompoundLeaf(0.06, 0.2);
+                    }} else if (isOnion) {{
+                        // Long tubular onion leaves
+                        leafGeom = new THREE.CylinderGeometry(0.008, 0.012, 0.3, 8);
+                    }} else {{
+                        leafGeom = createLeafByShape('elongated', 0.04, 0.15, 0.2);
+                    }}
+                    
+                    const leafMat = new THREE.MeshStandardMaterial({{
+                        color: new THREE.Color(leafColor),
+                        side: THREE.DoubleSide,
+                        roughness: 0.5
+                    }});
+                    const leaf = new THREE.Mesh(leafGeom, leafMat);
+                    leaf.position.set(
+                        Math.cos(angle) * 0.02,
+                        isOnion ? 0.3 : 0.2,
+                        Math.sin(angle) * 0.02
+                    );
+                    leaf.rotation.x = -0.2 + Math.random() * 0.2;
+                    leaf.rotation.y = angle;
+                    if (!isOnion) leaf.rotation.z = (Math.random() - 0.5) * 0.3;
+                    group.add(leaf);
+                }}
+                
+                return group;
+            }}
+            
+            // HERB Builder (basil, mint, cilantro)
+            function buildHerbPlant() {{
+                const group = new THREE.Group();
+                const leafSys = get(plantData, 'leaf_system', {{}});
+                const arch = get(plantData, 'plant_architecture', {{}});
+                
+                const leafColor = get(leafSys, 'primary_color_hex', '#228B22');
+                const leafShape = get(leafSys, 'shape', 'oval');
+                const plantHeight = get(arch, 'height_cm', 30) / 100 || 0.3;
+                
+                // Central stems
+                for (let s = 0; s < 3; s++) {{
+                    const stemAngle = (s / 3) * Math.PI * 2;
+                    const stemHeight = plantHeight * (0.8 + Math.random() * 0.4);
+                    
+                    const stemGeom = new THREE.CylinderGeometry(0.012, 0.018, stemHeight, 8);
+                    const stemMat = new THREE.MeshStandardMaterial({{ color: 0x558B2F, roughness: 0.7 }});
+                    const stem = new THREE.Mesh(stemGeom, stemMat);
+                    const offset = 0.03;
+                    stem.position.set(
+                        Math.cos(stemAngle) * offset,
+                        0.15 + stemHeight / 2,
+                        Math.sin(stemAngle) * offset
+                    );
+                    stem.rotation.x = (Math.random() - 0.5) * 0.1;
+                    group.add(stem);
+                    
+                    // Pairs of leaves along stem
+                    for (let l = 0; l < 4; l++) {{
+                        const leafY = 0.18 + (l / 4) * stemHeight;
+                        
+                        for (let side = 0; side < 2; side++) {{
+                            const leafGeom = createLeafByShape(leafShape, 0.04, 0.06, 0.2);
+                            const colorVar = new THREE.Color(leafColor);
+                            colorVar.offsetHSL(0, 0, (Math.random() - 0.5) * 0.1);
+                            const leafMat = new THREE.MeshStandardMaterial({{
+                                color: colorVar,
+                                side: THREE.DoubleSide,
+                                roughness: 0.5
+                            }});
+                            const leaf = new THREE.Mesh(leafGeom, leafMat);
+                            const leafAngle = stemAngle + (side === 0 ? 1 : -1) * Math.PI / 3;
+                            leaf.position.set(
+                                Math.cos(stemAngle) * offset + Math.cos(leafAngle) * 0.04,
+                                leafY,
+                                Math.sin(stemAngle) * offset + Math.sin(leafAngle) * 0.04
+                            );
+                            leaf.rotation.x = -0.3;
+                            leaf.rotation.y = leafAngle;
+                            const scale = 0.7 + l * 0.1;
+                            leaf.scale.set(scale, scale, scale);
+                            group.add(leaf);
+                        }}
+                    }}
+                }}
+                
+                return group;
+            }}
+            
+            // Create grass-style long leaf
+            function createGrassLeaf(width, length) {{
+                const shape = new THREE.Shape();
+                shape.moveTo(0, 0);
+                shape.quadraticCurveTo(width, length * 0.3, width * 0.3, length);
+                shape.quadraticCurveTo(0, length * 0.95, -width * 0.3, length);
+                shape.quadraticCurveTo(-width, length * 0.3, 0, 0);
+                
+                const geometry = new THREE.ShapeGeometry(shape, 16);
+                const positions = geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {{
+                    const y = positions[i + 1];
+                    positions[i + 2] = Math.pow(y / length, 2) * 0.15;
+                }}
+                geometry.computeVertexNormals();
+                return geometry;
+            }}
+            
+            // Create compound leaf (for tomatoes, etc.)
                     const fruitAngle = Math.random() * Math.PI * 2;
                     const fruitRadius = 0.1 + Math.random() * 0.1;
                     
@@ -646,23 +975,45 @@ def render_3d_simulation(
                 return geometry;
             }}
             
-            // CONTAINER Builder
+            // CONTAINER Builder - Improved with field detection
             function buildContainer() {{
                 const containerData = get(plantData, 'container', {{}});
+                const envContext = get(plantData, 'environmental_context', {{}});
                 const containerType = get(containerData, 'type', 'pot');
+                const setting = get(envContext, 'setting', 'indoor');
                 
-                if (containerType === 'none' || containerType === 'ground') {{
-                    // Just soil mound
-                    const soilGeometry = new THREE.CylinderGeometry(0.6, 0.7, 0.15, 32);
+                // Field/outdoor detection - show ground, not pot
+                if (containerType === 'none' || containerType === 'ground' || 
+                    containerType === 'raised_bed' || containerType === 'field' ||
+                    setting === 'outdoor' || setting === 'field') {{
+                    
+                    const group = new THREE.Group();
                     const soilData = get(plantData, 'soil_ground', {{}});
-                    const soilMaterial = new THREE.MeshStandardMaterial({{
-                        color: new THREE.Color(get(soilData, 'color_hex', '#3D2B1F')),
+                    const soilColor = get(soilData, 'color_hex', '#5D4037');
+                    
+                    // Wider ground area for field plants
+                    const groundPatch = new THREE.CylinderGeometry(0.8, 1.0, 0.12, 32);
+                    const groundMat = new THREE.MeshStandardMaterial({{
+                        color: new THREE.Color(soilColor),
                         roughness: 1
                     }});
-                    const soil = new THREE.Mesh(soilGeometry, soilMaterial);
-                    soil.position.y = 0.08;
+                    const soil = new THREE.Mesh(groundPatch, groundMat);
+                    soil.position.y = 0.06;
                     soil.receiveShadow = true;
-                    return soil;
+                    group.add(soil);
+                    
+                    // Add some dirt texture bumps
+                    for (let i = 0; i < 8; i++) {{
+                        const bumpGeom = new THREE.SphereGeometry(0.05 + Math.random() * 0.04, 8, 8);
+                        const bump = new THREE.Mesh(bumpGeom, groundMat);
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = 0.3 + Math.random() * 0.4;
+                        bump.position.set(Math.cos(angle) * radius, 0.08, Math.sin(angle) * radius);
+                        bump.scale.y = 0.5;
+                        group.add(bump);
+                    }}
+                    
+                    return group;
                 }}
                 
                 const group = new THREE.Group();
@@ -743,6 +1094,7 @@ def render_3d_simulation(
             function buildScene() {{
                 const headType = get(plantData, 'plant_architecture.head_type', 'none');
                 const fruitType = get(plantData, 'plant_architecture.fruit_type', 'none');
+                const overallForm = get(plantData, 'plant_architecture.overall_form', '');
                 const plantFamily = get(plantData, 'identified_plant.plant_family', '');
                 const plantName = get(plantData, 'identified_plant.common_name', '').toLowerCase();
                 
@@ -750,24 +1102,66 @@ def render_3d_simulation(
                 const container = buildContainer();
                 if (container) plantGroup.add(container);
                 
-                // Build plant based on type
+                // Build plant based on type - SMART DETECTION
                 let plant;
                 
-                // Check for fruiting plants (tomato, pepper, eggplant)
-                if (fruitType !== 'none' || 
-                    plantName.includes('tomato') || 
-                    plantName.includes('pepper') || 
+                // 1. GRASSES & GRAINS (rice, corn, wheat, bamboo)
+                if (plantFamily === 'Poaceae' || plantFamily === 'Gramineae' ||
+                    plantName.includes('rice') || plantName.includes('palay') ||
+                    plantName.includes('corn') || plantName.includes('maize') ||
+                    plantName.includes('wheat') || plantName.includes('bamboo') ||
+                    plantName.includes('grass') || plantName.includes('sugarcane')) {{
+                    plant = buildGrassPlant();
+                }}
+                // 2. FRUITING PLANTS (tomato, pepper, eggplant)
+                else if (fruitType !== 'none' || 
+                    plantName.includes('tomato') || plantName.includes('kamatis') ||
+                    plantName.includes('pepper') || plantName.includes('sili') ||
                     plantName.includes('chili') ||
-                    plantName.includes('eggplant') ||
+                    plantName.includes('eggplant') || plantName.includes('talong') ||
                     plantFamily === 'Solanaceae') {{
                     plant = buildFruitingPlant();
                 }}
-                // Check for brassicas (cauliflower, broccoli, cabbage)
+                // 3. VINE PLANTS (kangkong, sweet potato, squash vine)
+                else if (overallForm === 'vining' || overallForm === 'trailing' ||
+                    plantName.includes('kangkong') || plantName.includes('water spinach') ||
+                    plantName.includes('camote') || plantName.includes('sweet potato') ||
+                    plantName.includes('squash') || plantName.includes('kalabasa') ||
+                    plantName.includes('cucumber') || plantName.includes('pipino') ||
+                    plantName.includes('ampalaya') || plantName.includes('bitter gourd') ||
+                    plantFamily === 'Convolvulaceae' || plantFamily === 'Cucurbitaceae') {{
+                    plant = buildVinePlant();
+                }}
+                // 4. ROOT VEGETABLES (carrot, radish, onion)
+                else if (plantName.includes('carrot') || plantName.includes('karot') ||
+                    plantName.includes('radish') || plantName.includes('labanos') ||
+                    plantName.includes('onion') || plantName.includes('sibuyas') ||
+                    plantName.includes('garlic') || plantName.includes('bawang') ||
+                    plantName.includes('turnip') || plantName.includes('singkamas') ||
+                    plantName.includes('ginger') || plantName.includes('luya') ||
+                    plantFamily === 'Alliaceae') {{
+                    plant = buildRootVegetable();
+                }}
+                // 5. HERBS (basil, mint, cilantro, oregano)
+                else if (plantName.includes('basil') || plantName.includes('balanoy') ||
+                    plantName.includes('mint') || plantName.includes('yerba buena') ||
+                    plantName.includes('cilantro') || plantName.includes('wansoy') ||
+                    plantName.includes('oregano') || plantName.includes('parsley') ||
+                    plantName.includes('rosemary') || plantName.includes('thyme') ||
+                    plantFamily === 'Lamiaceae') {{
+                    plant = buildHerbPlant();
+                }}
+                // 6. BRASSICAS (cauliflower, broccoli, cabbage)
                 else if (headType === 'cauliflower' || headType === 'broccoli' || headType === 'cabbage' ||
+                    plantName.includes('cauliflower') ||
+                    plantName.includes('broccoli') ||
+                    plantName.includes('cabbage') || plantName.includes('repolyo') ||
+                    plantName.includes('pechay') || plantName.includes('bok choy') ||
+                    plantName.includes('mustard') || plantName.includes('mustasa') ||
                     plantFamily === 'Brassicaceae') {{
                     plant = buildBrassicaPlant(headType);
                 }} 
-                // Default to leafy plant
+                // 7. DEFAULT: Generic leafy plant (lettuce, spinach, etc.)
                 else {{
                     plant = buildLeafyPlant();
                 }}

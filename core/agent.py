@@ -162,7 +162,7 @@ def analyze_plant_structure(image_file) -> Optional[dict]:
             },
             
             "plant_architecture": {
-                "overall_form": "rosette" or "bushy" or "upright" or "vining" or "columnar" or "spreading",
+                "overall_form": "rosette" or "bushy" or "upright" or "vining" or "columnar" or "spreading" or "grass" or "trailing",
                 "symmetry": "radial" or "bilateral" or "asymmetric",
                 "height_cm": 40,
                 "width_cm": 50,
@@ -174,7 +174,10 @@ def analyze_plant_structure(image_file) -> Optional[dict]:
                 "fruit_color_hex": "#FF6347",
                 "fruit_count": 5,
                 "fruit_size": 0.08,
-                "fruit_stage": "none" or "flowering" or "green" or "ripening" or "ripe"
+                "fruit_stage": "none" or "flowering" or "green" or "ripening" or "ripe",
+                "root_type": "none" or "taproot" or "bulb" or "tuber" or "rhizome",
+                "root_color_hex": "#FF6600",
+                "root_visible": false
             },
             
             "leaf_system": {

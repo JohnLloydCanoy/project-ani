@@ -15,7 +15,6 @@ def view_digital_twin():
     </div>
     """, unsafe_allow_html=True)
     st.write("---")
-    
     # Initialize session state
     if "generated_texture" not in st.session_state:
         st.session_state.generated_texture = None
