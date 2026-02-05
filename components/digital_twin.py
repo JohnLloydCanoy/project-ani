@@ -777,49 +777,6 @@ def render_3d_simulation(
             }}
             
             // Create compound leaf (for tomatoes, etc.)
-                    const fruitAngle = Math.random() * Math.PI * 2;
-                    const fruitRadius = 0.1 + Math.random() * 0.1;
-                    
-                    let fruitGeom;
-                    if (fruitType === 'tomato' || fruitType === 'cherry_tomato') {{
-                        fruitGeom = new THREE.SphereGeometry(fruitSize * (0.8 + Math.random() * 0.4), 16, 16);
-                    }} else if (fruitType === 'pepper' || fruitType === 'chili') {{
-                        fruitGeom = new THREE.ConeGeometry(fruitSize * 0.5, fruitSize * 3, 12);
-                    }} else if (fruitType === 'eggplant') {{
-                        fruitGeom = new THREE.SphereGeometry(fruitSize, 16, 16);
-                        fruitGeom.scale(0.6, 1.5, 0.6);
-                    }} else {{
-                        fruitGeom = new THREE.SphereGeometry(fruitSize, 16, 16);
-                    }}
-                    
-                    const fruitMat = new THREE.MeshStandardMaterial({{
-                        color: new THREE.Color(fruitColor),
-                        roughness: 0.3,
-                        metalness: 0.1
-                    }});
-                    const fruit = new THREE.Mesh(fruitGeom, fruitMat);
-                    fruit.position.set(
-                        Math.cos(fruitAngle) * fruitRadius,
-                        fruitY,
-                        Math.sin(fruitAngle) * fruitRadius
-                    );
-                    if (fruitType === 'pepper' || fruitType === 'chili') {{
-                        fruit.rotation.x = Math.PI;
-                    }}
-                    fruit.castShadow = true;
-                    group.add(fruit);
-                    
-                    // Small stem on fruit
-                    const stemletGeom = new THREE.CylinderGeometry(0.005, 0.008, 0.03, 6);
-                    const stemlet = new THREE.Mesh(stemletGeom, stemMaterial);
-                    stemlet.position.set(fruit.position.x, fruit.position.y + fruitSize, fruit.position.z);
-                    group.add(stemlet);
-                }}
-                
-                return group;
-            }}
-            
-            // Create compound leaf (for tomatoes, etc.)
             function createCompoundLeaf(width, length) {{
                 const shape = new THREE.Shape();
                 const leaflets = 5;

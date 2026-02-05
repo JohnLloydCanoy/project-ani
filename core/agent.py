@@ -17,7 +17,7 @@ if "GEMINI_API_KEY" in st.secrets:
 
 # Gemini model with tool functions
 model = genai.GenerativeModel(
-    "gemini-3-flash-preview",
+    "gemini-3-pro-preview",
 )
 
 
