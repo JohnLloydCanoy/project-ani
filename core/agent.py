@@ -19,14 +19,14 @@ api_manager = init_api_manager()
 
 # Gemini model with tool functions
 model = genai.GenerativeModel(
-    "gemini-3-pro-preview",
+    "gemini-3-flash-preview",
 )
 
 
 def _get_model():
     """Get model with refreshed API key (for rotation support)."""
     api_manager.configure_genai()
-    return genai.GenerativeModel("gemini-3-pro-preview")
+    return genai.GenerativeModel("gemini-3-flash-preview")
 
 
 # This function for image analysis
