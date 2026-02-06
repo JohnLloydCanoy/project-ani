@@ -91,7 +91,7 @@ def render_single_image_mode():
                 reset_simulation()
     
     with col2:
-        render_3d_preview()
+        render_3d_preview(key_prefix="single_")
 
 
 def render_multi_angle_mode():
@@ -145,7 +145,7 @@ def render_multi_angle_mode():
                 reset_simulation()
     
     with col2:
-        render_3d_preview()
+        render_3d_preview(key_prefix="multi_")
         
         # Show multi-angle specific insights
         if st.session_state.plant_structure and st.session_state.multi_angle_mode:
@@ -253,7 +253,7 @@ def render_tracking_mode():
                             add_tracking_scan(uploaded_file, tracking_id, selected_plant.split(" (")[0], device_id)
     
     with col2:
-        render_3d_preview()
+        render_3d_preview(key_prefix="track_")
         
         # Show progression analysis
         if st.session_state.progression_data:
@@ -487,8 +487,12 @@ def add_tracking_scan(uploaded_file, tracking_id, plant_name, device_id):
             status.update(label="❌ Failed to analyze", state="error")
 
 
-def render_3d_preview():
-    """Render the 3D simulation preview with growth simulation controls."""
+def render_3d_preview(key_prefix: str = ""):
+    """Render the 3D simulation preview with growth simulation controls.
+    
+    Args:
+        key_prefix: Unique prefix for widget keys to avoid duplicates across tabs
+    """
     st.markdown("### 🎮 3D Simulation")
     
     if st.session_state.simulation_active:
@@ -498,7 +502,7 @@ def render_3d_preview():
         if plant_structure:
             # Integrate growth simulation controls (renders expander with sliders)
             # Returns modified structure based on growth stage and scenarios
-            modified_structure = integrate_growth_simulation(plant_structure)
+            modified_structure = integrate_growth_simulation(plant_structure, key_prefix)
             
             # Render 3D with potentially modified structure
             render_3d_simulation(

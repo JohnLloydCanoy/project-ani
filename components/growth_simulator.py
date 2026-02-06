@@ -371,10 +371,14 @@ class GrowthSimulator:
 # STREAMLIT UI COMPONENTS
 # ============================================================================
 
-def render_growth_controls(plant_structure: dict) -> dict:
+def render_growth_controls(plant_structure: dict, key_prefix: str = "") -> dict:
     """
     Render growth simulation controls in Streamlit sidebar or expander.
     Returns modified plant structure based on user inputs.
+    
+    Args:
+        plant_structure: The plant structure dict to modify
+        key_prefix: Unique prefix for widget keys to avoid duplicates across tabs
     """
     
     # Initialize simulator in session state
@@ -401,7 +405,8 @@ def render_growth_controls(plant_structure: dict) -> dict:
             value=st.session_state.get("growth_percentage", 100),
             step=5,
             format="%d%%",
-            help="Slide to see the plant at different growth stages"
+            help="Slide to see the plant at different growth stages",
+            key=f"{key_prefix}growth_progress_slider"
         )
         st.session_state.growth_percentage = growth_pct
         
@@ -443,7 +448,8 @@ def render_growth_controls(plant_structure: dict) -> dict:
                 "💧 Water",
                 options=["low", "optimal", "high"],
                 value=st.session_state.get("scenario_water", "optimal"),
-                format_func=lambda x: SCENARIO_EFFECTS["water"][x]["icon"]
+                format_func=lambda x: SCENARIO_EFFECTS["water"][x]["icon"],
+                key=f"{key_prefix}scenario_water_slider"
             )
             st.session_state.scenario_water = water_level
             simulator.scenarios["water"] = water_level
@@ -453,7 +459,8 @@ def render_growth_controls(plant_structure: dict) -> dict:
                 "☀️ Sunlight",
                 options=["low", "optimal", "high"],
                 value=st.session_state.get("scenario_sunlight", "optimal"),
-                format_func=lambda x: SCENARIO_EFFECTS["sunlight"][x]["icon"]
+                format_func=lambda x: SCENARIO_EFFECTS["sunlight"][x]["icon"],
+                key=f"{key_prefix}scenario_sunlight_slider"
             )
             st.session_state.scenario_sunlight = sun_level
             simulator.scenarios["sunlight"] = sun_level
@@ -463,7 +470,8 @@ def render_growth_controls(plant_structure: dict) -> dict:
                 "🌱 Nutrients",
                 options=["low", "optimal", "high"],
                 value=st.session_state.get("scenario_nutrients", "optimal"),
-                format_func=lambda x: SCENARIO_EFFECTS["nutrients"][x]["icon"]
+                format_func=lambda x: SCENARIO_EFFECTS["nutrients"][x]["icon"],
+                key=f"{key_prefix}scenario_nutrients_slider"
             )
             st.session_state.scenario_nutrients = nutrient_level
             simulator.scenarios["nutrients"] = nutrient_level
@@ -551,7 +559,7 @@ def render_growth_timeline(plant_name: str):
 # INTEGRATION HELPER
 # ============================================================================
 
-def integrate_growth_simulation(plant_structure: dict) -> dict:
+def integrate_growth_simulation(plant_structure: dict, key_prefix: str = "") -> dict:
     """
     Main integration function - call this from the digital twin page.
     Returns modified structure with growth simulation applied.
@@ -559,7 +567,11 @@ def integrate_growth_simulation(plant_structure: dict) -> dict:
     Usage in view_digital_twin.py:
         from components.growth_simulator import integrate_growth_simulation
         
-        modified_structure = integrate_growth_simulation(plant_structure)
+        modified_structure = integrate_growth_simulation(plant_structure, key_prefix="single_")
         render_3d_simulation(texture_data, modified_structure)
+    
+    Args:
+        plant_structure: The plant structure dict
+        key_prefix: Unique prefix for widget keys (e.g., "single_", "multi_", "track_")
     """
-    return render_growth_controls(plant_structure)
+    return render_growth_controls(plant_structure, key_prefix)
